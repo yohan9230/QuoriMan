@@ -52,7 +52,7 @@ class Orientation(Enum):
 def make_horizontal_wall_list():
     """수평 벽 존재 여부 정보 담는 2차원 리스트"""
     # 기존에 수평 벽 리스트가 있을 수 있으므로 초기화
-    HORIZONTAL_WALL_LIST = []
+    HORIZONTAL_WALL_LIST.clear()
     for i in range(maze_size+1):
         row = []
         for j in range(maze_size):
@@ -71,7 +71,7 @@ def print_horizontal_wall_list():
 def make_vertical_wall_list():
     """수직 벽 존재 여부 정보 담는 2차원 리스트"""
     # 기존에 수직 벽 리스트가 있을 수 있으므로 초기화
-    VERTICAL_WALL_LIST = []
+    VERTICAL_WALL_LIST.clear()
     for i in range(maze_size):
         row = []
         for j in range(maze_size+1):
@@ -127,6 +127,14 @@ def change_wall(row:int, col:int, dir:Direction, change:bool):
 
 
 # -----------------------------------------------------
+# 미로 관련 함수
+
+## 100% 벽으로 되어있는 미로를 만드는 함수
+def make_maze():
+    if maze_size <= 0:
+        raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
+    make_horizontal_wall_list()
+    make_vertical_wall_list()
 
 ## 미로 출력 함수
 def print_maze():
@@ -162,17 +170,9 @@ def print_maze():
     print(PILLAR)
         
 # -----------------------------------------------------
-# 여기서부터 실행 코드
-## import를 해도 미로 크기는 받아야함.
-maze_size = int(input("미로 크기를 입력하세요: "))
 
 ## 직접 실행할때만 동작하도록
-if __name__ == "___main__":
-    # 미로 크기 0 이하 예외 처리
-    if maze_size <= 0:
-        raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
-
-    make_horizontal_wall_list()
-    make_vertical_wall_list()
-
+if __name__ == "__main__":
+    maze_size = int(input("미로 크기를 입력하세요: "))
+    make_maze()
     print_maze()
