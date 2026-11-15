@@ -163,14 +163,16 @@ def print_maze():
         
 # -----------------------------------------------------
 # 여기서부터 실행 코드
-
+## import를 해도 미로 크기는 받아야함.
 maze_size = int(input("미로 크기를 입력하세요: "))
 
-# 미로 크기 0 이하 예외 처리
-if maze_size <= 0:
-    raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
+## 직접 실행할때만 동작하도록
+if __name__ == "___main__":
+    # 미로 크기 0 이하 예외 처리
+    if maze_size <= 0:
+        raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
 
-make_horizontal_wall_list()
-make_vertical_wall_list()
+    make_horizontal_wall_list()
+    make_vertical_wall_list()
 
-print_maze()
+    print_maze()
