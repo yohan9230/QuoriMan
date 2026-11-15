@@ -2,6 +2,7 @@ from maze import Direction, Maze
 import random
 
 class MazeGenerator():
+    # Direction과 순서가 동일함
     DIR_ROW = [-1, 0, 1, 0]
     DIR_COL = [0, 1, 0, -1]
     

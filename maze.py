@@ -81,6 +81,7 @@ class Maze:
 
     ## 벽 존재 여부 판단 함수
     def is_there_wall(self, row:int, col:int, dir:Direction):
+        """row, col 위치에서, dir 방향에 벽이 있는지 확인하여 반환함"""
         if self.out_of_maze(row, col) == True:
             raise ValueError
         match dir:
@@ -99,7 +100,7 @@ class Maze:
     def change_wall(self, row:int, col:int, dir:Direction, change:bool):
         """미로의 [row, col]칸에서, dir방향의 벽을 변경하는 함수"""
         if self.out_of_maze(row, col) == True:
-            raise ValueError
+            raise ValueError("잘못된 위치: 미로 밖")
         match dir:
             case Direction.UP:
                 self.HORIZONTAL_WALL_LIST[row][col] = change
@@ -113,7 +114,7 @@ class Maze:
                 raise ValueError("벽 조회에 불가능한 방향 조회")
     
     ## 미로 출력 함수
-    def print_maze(self, start_row:int, start_col:int):
+    def print_maze(self, start_row:int = None, start_col:int = None):
         """미로 출력 함수"""
         for row in range(self.maze_size):
             # 수평 벽 출력(칸의 위쪽 벽 유무 조회)
@@ -159,4 +160,4 @@ class Maze:
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
     maze1 = Maze(int(input("미로 크기를 입력하세요: ")))
-    maze1.print_maze(None, None)
+    maze1.print_maze()
