@@ -65,7 +65,7 @@ class MazeGenerator():
             raise RuntimeError("WallBreaker: 부술 벽이 없습니다.")      
         self.maze.change_wall(self.current_row, self.current_col, dir, False)
     
-    # 가려는 방향을 정하고, 
+    # 가려는 방향을 정하고, 그쪽 방향의 벽을 부수고 MazeGenerator가 이동함.
     def remove_wall_and_move(self):
         candidate_dir = self.find_candidate_next_dir()
         if not candidate_dir:
