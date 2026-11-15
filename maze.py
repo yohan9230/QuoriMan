@@ -1,11 +1,12 @@
-from enum import Enum
+from enum import IntEnum, Enum
 
 # 방향
-class Direction(Enum):
+class Direction(IntEnum):
     UP = 0
-    DOWN = 1
-    LEFT = 2
-    RIGHT = 3
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
 # 수평/수직
 class Orientation(Enum):
     horizontal = 0
@@ -13,7 +14,6 @@ class Orientation(Enum):
 
 # 미로 클래스
 class Maze:
-    maze_size:int
     # 미로의 수평 벽
     HORIZONTAL_WALL = "--" 
     # 미로의 수평 벽(비어있음)
@@ -79,11 +79,8 @@ class Maze:
 
     ## 벽 존재 여부 판단 함수
     def is_there_wall(self, row:int, col:int, dir:Direction):
-        """미로의 [row, col]칸에서, dir방향에 벽이 있는지 판단하는 함수"""
-        if row < 0 or row > self.maze_size-1:
-            raise ValueError("조회 불가능한 미로 행 번호")
-        if col < 0 or col > self.maze_size-1:
-            raise ValueError("조회 불가능한 미로 열 번호")
+        if self.out_of_maze(row, col) == True:
+            raise ValueError
         match dir:
             case Direction.UP:
                 return self.HORIZONTAL_WALL_LIST[row][col]
@@ -99,10 +96,8 @@ class Maze:
     ## 벽 수정 함수
     def change_wall(self, row:int, col:int, dir:Direction, change:bool):
         """미로의 [row, col]칸에서, dir방향의 벽을 변경하는 함수"""
-        if row < 0 or row > self.maze_size-1:
-            raise ValueError("조회 불가능한 미로 행 번호")
-        if col < 0 or col > self.maze_size-1:
-            raise ValueError("조회 불가능한 미로 열 번호")
+        if self.out_of_maze(row, col) == True:
+            raise ValueError
         match dir:
             case Direction.UP:
                 self.HORIZONTAL_WALL_LIST[row][col] = change
@@ -147,6 +142,12 @@ class Maze:
             else:
                 print(self.HORIZONTAL_WALL_EMPTY, end = "")
         print(self.PILLAR)
+
+    ## 미로 밖 좌표인지 확인하는 함수
+    def out_of_maze(self, row, col):
+        if row < 0 or row > self.maze_size-1 or col < 0 or col > self.maze_size-1:
+            return True
+        return False
 
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
