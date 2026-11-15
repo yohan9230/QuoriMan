@@ -113,7 +113,7 @@ class Maze:
                 raise ValueError("벽 조회에 불가능한 방향 조회")
     
     ## 미로 출력 함수
-    def print_maze(self):
+    def print_maze(self, start_row:int, start_col:int):
         """미로 출력 함수"""
         for row in range(self.maze_size):
             # 수평 벽 출력(칸의 위쪽 벽 유무 조회)
@@ -130,7 +130,12 @@ class Maze:
                     print(self.VERTICAL_WALL, end = "")
                 else:
                     print(self.VERTICAL_WALL_EMPTY, end = "")
-                print(self.CELL, end = "")
+                # 시작 위치인 경우에만 시작 위치 표시
+                if (row == start_row) and (col == start_col):
+                    print(self.STARTCELL, end = "")
+                else:
+                    # 시작 위치가 아닌 칸에는 공백 출력
+                    print(self.CELL, end = "")
             # 행의 가장 마지막 수직 벽 출력(마지막 칸의 오른쪽 벽 유무 조회)
             if self.is_there_wall(row, self.maze_size-1, Direction.RIGHT) == True:
                 print(self.VERTICAL_WALL)
@@ -154,4 +159,4 @@ class Maze:
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
     maze1 = Maze(int(input("미로 크기를 입력하세요: ")))
-    maze1.print_maze()
+    maze1.print_maze(None, None)

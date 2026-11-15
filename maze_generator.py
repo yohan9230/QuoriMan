@@ -108,10 +108,12 @@ class MazeGenerator():
 if __name__ == "__main__":
     maze_size = int(input("미로 크기 입력: "))
     maze = Maze(maze_size)
-    start_row, start_col = map(int, input("시작 행, 열 번호 입력(0부터 시작, 띄어쓰기로 구분): ").split())
+    start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
+    start_row = start_row-1
+    start_col = start_col-1
     if maze.out_of_maze(start_row, start_col) == True:
         raise ValueError("미로 안의 위치가 아닙니다.")
     maze_generator = MazeGenerator(start_row, start_col, maze)
     if maze_generator.generate_maze():
         print("미로 생성 성공")
-        maze.print_maze()
+        maze.print_maze(start_row, start_col)
