@@ -56,6 +56,14 @@ class MazeGenerator():
                     candidate_dir.append(Direction(dir))
         return candidate_dir
 
+    # 갈수 있는 방향이 없을때 한걸음 뒤로 이동
+    def backward(self):
+        self.visitied_pos_stack.pop()
+        if not self.visitied_pos_stack:
+            return
+        self.current_row = self.visitied_pos_stack[-1][0]
+        self.current_col = self.visitied_pos_stack[-1][1]
+    
     # 현 위치에서 특정 방향의 벽을 부수는 함수
     def call_wall_breaker(self, dir:Direction):
         """MazeGenerator의 현 위치에서 특정 방향의 벽을 부수는 함수"""
@@ -65,13 +73,45 @@ class MazeGenerator():
             raise RuntimeError("WallBreaker: 부술 벽이 없습니다.")      
         self.maze.change_wall(self.current_row, self.current_col, dir, False)
     
-    # 가려는 방향을 정하고, 그쪽 방향의 벽을 부수고 MazeGenerator가 이동함.
-    def remove_wall_and_move(self):
+    # 가려는 방향을 정하고, 그쪽 방향의 벽을 부수고 MazeGenerator가 한칸 이동함.
+    def remove_wall_and_move_once(self):
         candidate_dir = self.find_candidate_next_dir()
-        if not candidate_dir:
-            return
+        while not candidate_dir:
+            self.backward()
+            if not self.visitied_pos_stack:
+                if self.check_all_visitied() == True:
+                    return
+                else:
+                    raise RuntimeError("MazeGenerator: 방문하지 않은 곳이 있는 상태로 끝났습니다. DFS 알고리즘을 수정하세요.")
+            candidate_dir = self.find_candidate_next_dir()
         next_dir = random.choice(candidate_dir)
         self.call_wall_breaker(next_dir)
         self.move_pos(self.current_row+self.DIR_ROW[next_dir], self.current_col+self.DIR_COL[next_dir])
-        
-        
+    
+    # 모든 칸을 방문했는지 알려주는 함수
+    def check_all_visitied(self):
+        """- 모든 칸을 방문했는지 반환해주는 함수
+        - 모두 방문시 True, 한칸이라도 방문하지 않았다면 False 반환"""
+        for i in range(self.maze.maze_size):
+            if not all(self.visitied[i]):
+                return False
+        return True
+
+    # 위 함수들을 종합하여, 최종적으로 미로를 만드는 함수. 정상 종료시 True를 반환함
+    def generate_maze(self):
+        while self.visitied_pos_stack:
+            self.remove_wall_and_move_once()
+        return True
+    
+# -----------------------------------------------------
+
+if __name__ == "__main__":
+    maze_size = int(input("미로 크기 입력: "))
+    maze = Maze(maze_size)
+    start_row, start_col = map(int, input("시작 행, 열 번호 입력(0부터 시작, 띄어쓰기로 구분): ").split())
+    if maze.out_of_maze(start_row, start_col) == True:
+        raise ValueError("미로 안의 위치가 아닙니다.")
+    maze_generator = MazeGenerator(start_row, start_col, maze)
+    if maze_generator.generate_maze():
+        print("미로 생성 성공")
+        maze.print_maze()

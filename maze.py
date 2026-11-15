@@ -26,8 +26,10 @@ class Maze:
     PILLAR = "+" 
     # 벽 사이 빈 칸. 공백 2칸.
     CELL = "  " 
+    # 시작 위치
+    STARTCELL = "<>"
     
-    def __init__(self, maze_size):
+    def __init__(self, maze_size:int):
         if maze_size <= 0:
             raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
         self.maze_size = maze_size
