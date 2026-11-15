@@ -11,18 +11,18 @@ class MazeGenerator():
     maze:Maze
     
     def __init__(self, start_row:int, start_col:int, maze:Maze):
-        if maze.out_of_maze(start_row, start_col) == True:
+        if maze.out_of_maze(start_row, start_col):
             raise ValueError("MazeGenerator: 시작 위치가 잘못되었습니다.")
         self.current_row = start_row
         self.current_col = start_col
         self.maze = maze
         # 방문 여부를 표현하는 2차원 bool 기반 리스트
-        self.visitied = []
+        self.visited = []
         # 방문한 위치를 기록하는 스택
         self.visitied_pos_stack = []
         self.make_visitied()
         # 시작 위치를 방문 처리
-        self.visitied[start_row][start_col] = True
+        self.visited[start_row][start_col] = True
         # 사직 위치 스택에 넣기
         self.visitied_pos_stack.append([start_row, start_col])
     
@@ -33,14 +33,14 @@ class MazeGenerator():
             tmp_list = []
             for j in range(self.maze.maze_size):
                 tmp_list.append(False)
-            self.visitied.append(tmp_list)
+            self.visited.append(tmp_list)
     
     # [row, col] 위치로 미로 생성자가 방문하도록 하는 함수
     def move_pos(self, row:int, col:int):
         """[row, col] 위치로 미로 생성자가 방문하도록 하는 함수"""
-        if self.visitied[row][col] == True:
+        if self.visited[row][col] == True:
             raise RuntimeError("MazeGenerator: 방문한 곳을 또 방문할 수 없습니다. DFS 미로 만들기 알고리즘을 수정하세요.")
-        self.visitied[row][col] = True
+        self.visited[row][col] = True
         self.visitied_pos_stack.append([row, col])
         self.current_row = row
         self.current_col = col
@@ -49,12 +49,12 @@ class MazeGenerator():
     def find_candidate_next_dir(self):
         """현 위치에서 다음으로 갈 방향을 결정하여 방향 후보를 리스트로 반환하는 함수"""
         candidate_dir = []
-        for dir in range(len(Direction)):
-            next_row = self.current_row+self.DIR_ROW[dir]
-            next_col = self.current_col+self.DIR_COL[dir]
-            if self.maze.out_of_maze(next_row, next_col) == False:
-                if self.visitied[next_row][next_col] == False:
-                    candidate_dir.append(Direction(dir))
+        for d in Direction:
+            next_row = self.current_row+self.DIR_ROW[d]
+            next_col = self.current_col+self.DIR_COL[d]
+            if not self.maze.out_of_maze(next_row, next_col):
+                if not self.visited[next_row][next_col]:
+                    candidate_dir.append(d)
         return candidate_dir
 
     # 갈수 있는 방향이 없을때 한걸음 뒤로 이동
@@ -66,13 +66,13 @@ class MazeGenerator():
         self.current_col = self.visitied_pos_stack[-1][1]
     
     # 현 위치에서 특정 방향의 벽을 부수는 함수
-    def call_wall_breaker(self, dir:Direction):
+    def call_wall_breaker(self, d:Direction):
         """MazeGenerator의 현 위치에서 특정 방향의 벽을 부수는 함수"""
-        if self.maze.out_of_maze(self.current_row+self.DIR_ROW[dir], self.current_col+self.DIR_COL[dir]) == True:
+        if self.maze.out_of_maze(self.current_row+self.DIR_ROW[d], self.current_col+self.DIR_COL[d]) == True:
             raise RuntimeError("WallBreaker: 부술수 없는 벽을 부술려 하고 있습니다.")
-        if self.maze.is_there_wall(self.current_row, self.current_col, dir) == False:
+        if not self.maze.is_there_wall(self.current_row, self.current_col, d):
             raise RuntimeError("WallBreaker: 부술 벽이 없습니다.")      
-        self.maze.change_wall(self.current_row, self.current_col, dir, False)
+        self.maze.change_wall(self.current_row, self.current_col, d, False)
     
     # 가려는 방향을 정하고, 그쪽 방향의 벽을 부수고 MazeGenerator가 한칸 이동함.
     def remove_wall_and_move_once(self):
@@ -94,7 +94,7 @@ class MazeGenerator():
         """- 모든 칸을 방문했는지 반환해주는 함수
         - 모두 방문시 True, 한칸이라도 방문하지 않았다면 False 반환"""
         for i in range(self.maze.maze_size):
-            if not all(self.visitied[i]):
+            if not all(self.visited[i]):
                 return False
         return True
 
@@ -112,8 +112,6 @@ if __name__ == "__main__":
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
     start_row = start_row-1
     start_col = start_col-1
-    if maze.out_of_maze(start_row, start_col) == True:
-        raise ValueError("미로 안의 위치가 아닙니다.")
     maze_generator = MazeGenerator(start_row, start_col, maze)
     if maze_generator.generate_maze():
         print("미로 생성 성공")
