@@ -1,18 +1,5 @@
 from enum import Enum
 
-# 미로의 수평 벽
-HORIZONTAL_WALL = "--" 
-# 미로의 수평 벽(비어있음)
-HORIZONTAL_WALL_EMPTY = "  "
-# 미로의 수직 벽
-VERTICAL_WALL = "|"
-# 미로의 수직 벽(비어있음)
-VERTICAL_WALL_EMPTY = " "
-# 미로 수평/수직 벽의 교차점 = 기둥
-PILLAR = "+" 
-# 벽 사이 빈 칸. 공백 2칸.
-CELL = "  " 
-
 # 방향
 class Direction(Enum):
     UP = 0
@@ -24,10 +11,22 @@ class Orientation(Enum):
     horizontal = 0
     vertical = 1
 
-# -----------------------------------------------------
 # 미로 클래스
 class Maze:
     maze_size:int
+    # 미로의 수평 벽
+    HORIZONTAL_WALL = "--" 
+    # 미로의 수평 벽(비어있음)
+    HORIZONTAL_WALL_EMPTY = "  "
+    # 미로의 수직 벽
+    VERTICAL_WALL = "|"
+    # 미로의 수직 벽(비어있음)
+    VERTICAL_WALL_EMPTY = " "
+    # 미로 수평/수직 벽의 교차점 = 기둥
+    PILLAR = "+" 
+    # 벽 사이 빈 칸. 공백 2칸.
+    CELL = "  " 
+    
     def __init__(self, maze_size):
         if maze_size <= 0:
             raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
@@ -122,34 +121,33 @@ class Maze:
         for row in range(self.maze_size):
             # 수평 벽 출력(칸의 위쪽 벽 유무 조회)
             for col in range(self.maze_size):
-                print(PILLAR, end = "")
+                print(self.PILLAR, end = "")
                 if self.is_there_wall(row, col, Direction.UP) == True:
-                    print(HORIZONTAL_WALL, end = "")
+                    print(self.HORIZONTAL_WALL, end = "")
                 else:
-                    print(HORIZONTAL_WALL_EMPTY, end = "")
-            print(PILLAR)
+                    print(self.HORIZONTAL_WALL_EMPTY, end = "")
+            print(self.PILLAR)
             # 수직 벽 출력(칸의 왼쪽 벽 유무 조회)
             for col in range(self.maze_size):
                 if self.is_there_wall(row, col, Direction.LEFT) == True:
-                    print(VERTICAL_WALL, end = "")
+                    print(self.VERTICAL_WALL, end = "")
                 else:
-                    print(VERTICAL_WALL_EMPTY, end = "")
-                print(CELL, end = "")
+                    print(self.VERTICAL_WALL_EMPTY, end = "")
+                print(self.CELL, end = "")
             # 행의 가장 마지막 수직 벽 출력(마지막 칸의 오른쪽 벽 유무 조회)
             if self.is_there_wall(row, self.maze_size-1, Direction.RIGHT) == True:
-                print(VERTICAL_WALL)
+                print(self.VERTICAL_WALL)
             else:
-                print(VERTICAL_WALL_EMPTY)
+                print(self.VERTICAL_WALL_EMPTY)
         # 가장 마지막 수평 벽 출력
         for col in range(self.maze_size):
-            print(PILLAR, end = "")
+            print(self.PILLAR, end = "")
             if self.is_there_wall(self.maze_size-1, col, Direction.DOWN) == True:
-                print(HORIZONTAL_WALL, end = "")
+                print(self.HORIZONTAL_WALL, end = "")
             else:
-                print(HORIZONTAL_WALL_EMPTY, end = "")
-        print(PILLAR)
+                print(self.HORIZONTAL_WALL_EMPTY, end = "")
+        print(self.PILLAR)
 
-# -----------------------------------------------------
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
     maze1 = Maze(int(input("미로 크기를 입력하세요: ")))
