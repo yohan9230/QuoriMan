@@ -39,8 +39,6 @@ class Maze:
         
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
-    
-    
 
     ## 수평 벽 정보 리스트 만드는 함수
     def make_horizontal_wall_list(self):
