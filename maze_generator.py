@@ -1,3 +1,4 @@
+# 막다른 길을 없애는 소스 파일. 막다른 길을 없애는 이유는 맹수들의 움직임과 관련 있음.
 from maze import Direction, Maze
 import random
 

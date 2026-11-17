@@ -1,3 +1,4 @@
+# DFS를 기반으로 미로를 만드는 소스 파일. 막다른 길은 존재. 출구/입구 아직 없음.
 from maze import Maze
 from maze_generator import MazeGenerator
 import random

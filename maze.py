@@ -1,3 +1,4 @@
+# 미로의 기본 틀을 만드는 소스 파일. n * n 격자를 생성함.
 from enum import IntEnum
 
 # 방향
