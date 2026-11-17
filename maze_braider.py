@@ -45,6 +45,7 @@ class MazeBraider:
     
     # 최종적으로 막다른 길을 모두 뚫는 함수
     def braid_maze(self):
+        """- 막다른 길을 모두 뚫는 함수"""
         for index in range(len(self.dead_end_pos)):
             pos = self.dead_end_pos[index]
             # 벽 리스트 중 가장 첫번째 방향의 벽을 제거
