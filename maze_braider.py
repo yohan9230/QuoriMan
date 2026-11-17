@@ -10,6 +10,10 @@ class MazeBraider:
         # 막다른 길 위치에 대응하여 벽 방향을 모두 저장하는 리스트
         self.dead_end_dir = []
         self.maze = maze
+        # 막다른 길 찾기 함수 호출
+        self.find_end_pos_and_wall_dir()
+        # 벽 후보 리스트 섞기
+        self.shuffle_dir_list()
     
     # row, col에서 막다른 길인지 확인하여 반환하는 함수
     def is_dead_end (self, row:int, col: int):
