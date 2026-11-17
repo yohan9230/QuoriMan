@@ -48,10 +48,13 @@ class MazeBraider:
         - 반환값 없음"""
         # 모든 막다른 길이 있는 위치에서...
         for index in range(len(self.dead_end_pos)):
-            pos = self.dead_end_pos[index]
-            # 벽 리스트 중 가장 첫번째 방향의 벽을 제거
-            breaking_wall_dir = self.dead_end_dir[index].pop(0)
-            self.maze.change_wall(pos[0], pos[1], breaking_wall_dir, False)
+            row = self.dead_end_pos[index][0]
+            col = self.dead_end_pos[index][1]
+            # 마지막으로 부수기전, 다른 곳에서 이미 벽을 부쉈으면 막다른 길이 아니게 되므로 한번 더 확인
+            if self.is_dead_end(row, col):
+                # 벽 리스트 중 가장 첫번째 방향의 벽을 제거
+                breaking_wall_dir = self.dead_end_dir[index].pop(0)
+                self.maze.change_wall(row, col, breaking_wall_dir, False)
         
     # 막다른 길이 없는지 확인하여 반환하는 함수
     def check_there_is_no_dead_end(self):
