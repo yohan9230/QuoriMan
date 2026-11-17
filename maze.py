@@ -24,6 +24,9 @@ class Maze:
     # 시작 위치
     STARTCELL = "<>"
     
+    DIR_ROW = [-1, 0, 1, 0]
+    DIR_COL = [0, 1, 0, -1]
+    
     def __init__(self, maze_size:int):
         if maze_size <= 0:
             raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
@@ -149,12 +152,23 @@ class Maze:
         return False
     
     # 현 위치에서 벽 방향을 반환하는 함수
-    def cout_wall(self, row:int, col:int):
+    def count_wall(self, row:int, col:int, discard_outline:bool = False):
         """row, col 위치에서 4방향 모두 벽 존재 여부를 확인하고, 벽 방향을 리스트로 반함"""
         wall_dir_list = []
+        # 4가지 방향에 대해서...
         for dir in Direction:
+            # 우선 벽이 있는지 확인
             if self.is_there_wall(row, col, dir):
-                wall_dir_list.append(dir)
+                # 외벽을 카운트 한다면
+                if not discard_outline:
+                    wall_dir_list.append(dir)
+                # 외벽은 벽으로 카운트 하지 않는다면
+                else:
+                    # 해당 방향이 외벽인지 확인(해당 방향으로 이동시 미로를 탈출한다면 그 벽은 외벽)
+                    if self.out_of_maze(row+self.DIR_ROW[dir], col+self.DIR_COL[dir]):
+                        continue
+                    else:
+                        wall_dir_list.append(dir)
         return wall_dir_list
         
 
