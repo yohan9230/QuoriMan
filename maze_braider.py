@@ -1,4 +1,4 @@
-from maze import Maze, Direction
+from maze import Maze
 import random
 
 class MazeBraider:
@@ -36,13 +36,8 @@ class MazeBraider:
     def shuffle_dir_list(self):
         """- 방향 리스트를 섞는 함수
         - 반환값 없이 바로 적용"""
-        # 섞은 방향을 저장할 리스트(모든 위치에 대해서. 2차원 리스트)
-        shuffled_dir_list = []
         for dir_list in self.dead_end_dir:
-            shuffled_dir_list.append(random.shuffle(dir_list))
-        if not (len(self.dead_end_dir) == len(shuffled_dir_list)):
-            raise RuntimeError("MazeBraider: 방향 리스트 섞는 도중 누락된 위치가 생겼습니다.")
-        self.dead_end_dir = shuffled_dir_list
+            random.shuffle(dir_list)
     
     # 최종적으로 막다른 길을 모두 뚫는 함수
     def braid_maze(self):

@@ -1,4 +1,4 @@
-from enum import IntEnum, Enum
+from enum import IntEnum
 
 # 방향
 class Direction(IntEnum):
