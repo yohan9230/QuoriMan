@@ -103,7 +103,7 @@ class MazeGenerator():
         while self.visitied_pos_stack:
             self.remove_wall_and_move_once()
         return True
-    
+
 # -----------------------------------------------------
 
 if __name__ == "__main__":

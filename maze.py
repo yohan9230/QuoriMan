@@ -152,7 +152,7 @@ class Maze:
         return False
     
     # 현 위치에서 벽 방향을 반환하는 함수
-    def count_wall(self, row:int, col:int, discard_outline:bool = False):
+    def find_wall(self, row:int, col:int, discard_outline:bool = False):
         """row, col 위치에서 4방향 모두 벽 존재 여부를 확인하고, 벽 방향을 리스트로 반함"""
         wall_dir_list = []
         # 4가지 방향에 대해서...
