@@ -10,6 +10,17 @@ class MazeBraider:
         self.dead_end_dir = []
         self.maze = maze
     
+    # row, col에서 막다른 길인지 확인하여 반환하는 함수
+    def is_dead_end (self, row:int, col: int):
+        """row, col에서 막다른 길인지 확인하여 반환하는 함수"""
+        wall_num = self.maze.cont_wall()
+        if wall_num >= 3:
+            return True
+        elif wall_num <= 2 and wall_num >= 0:
+            return False
+        else:
+            raise RuntimeError("MazeBraider: 가능할 수 없는 벽 개수")
+    
     # 모든 칸의 4방향 벽을 조회 및 막다른 길 및 막다른 길마다 벽 위치 및 방향 저장
     def find_end_pos_and_wall_dir(self):
         """모든 칸의 4방향 벽을 조회 및 막다른 길 위치 및 막다른 길마다 벽 위치 및 방향 저장"""
@@ -17,20 +28,12 @@ class MazeBraider:
         self.dead_end_dir.clear()
         for row in range(self.maze.maze_size):
             for col in range(self.maze.maze_size):
-                # 외벽을 포함하고 벽을 셈
-                wall_dir = self.maze.find_wall(row, col, False)
                 # 한 위치에서 벽이 3개 이상이라면 막다른 길(외벽 포함)
-                if len(wall_dir) >= 3:
+                if self.is_dead_end(row, col):
                     # 막다른 길 좌표 저장
                     self.dead_end_pos.append([row, col])
                     # 막다른 길에서 외벽 제외한 벽 방향 저장
                     self.dead_end_dir.append(self.maze.find_wall(row, col, True))
-                # 막다른 길이 아니면 continue
-                elif len(wall_dir) <= 2 and len(wall_dir) >= 0:
-                    continue
-                # -1개 이하 혹은 5개 이상의 벽 개수가 나올 경우 에러
-                else:
-                    raise RuntimeError("DeadEndRemover: 가능할 수 없는 벽 개수")
     
     # 방향 리스트를 섞는 함수
     def shuffle_dir_list(self):

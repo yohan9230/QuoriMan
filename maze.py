@@ -170,6 +170,11 @@ class Maze:
                     else:
                         wall_dir_list.append(dir)
         return wall_dir_list
+    
+    # 현 위치에서 벽 개수를 반환하는 함수
+    def count_wall(self, row:int, col:int, discard_outline:bool = False):
+        """현 위치에서 벽 개수를 반환하는 함수"""
+        return len(self.find_wall(row, col, discard_outline))
         
 
 # 직접 실행할때만 동작하는 실행코드
