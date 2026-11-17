@@ -147,6 +147,16 @@ class Maze:
         if row < 0 or row > self.maze_size-1 or col < 0 or col > self.maze_size-1:
             return True
         return False
+    
+    # 현 위치에서 벽 방향을 반환하는 함수
+    def cout_wall(self, row:int, col:int):
+        """row, col 위치에서 4방향 모두 벽 존재 여부를 확인하고, 벽 방향을 리스트로 반함"""
+        wall_dir_list = []
+        for dir in Direction:
+            if self.is_there_wall(row, col, dir):
+                wall_dir_list.append(dir)
+        return wall_dir_list
+        
 
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
