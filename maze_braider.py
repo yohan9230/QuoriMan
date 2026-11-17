@@ -1,4 +1,5 @@
 from maze import Maze
+from maze_generator import MazeGenerator
 import random
 
 class MazeBraider:
@@ -55,6 +56,7 @@ class MazeBraider:
                 # 벽 리스트 중 가장 첫번째 방향의 벽을 제거
                 breaking_wall_dir = self.dead_end_dir[index].pop(0)
                 self.maze.change_wall(row, col, breaking_wall_dir, False)
+        return True
         
     # 막다른 길이 없는지 확인하여 반환하는 함수
     def check_there_is_no_dead_end(self):
@@ -67,3 +69,21 @@ class MazeBraider:
             return False
 
 # -----------------------------------------------------
+
+if __name__ == "__main__":
+    maze_size = int(input("미로 크기 입력: "))
+    maze = Maze(maze_size)
+    start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
+    start_row = start_row-1
+    start_col = start_col-1
+    maze_generator = MazeGenerator(start_row, start_col, maze)
+    if maze_generator.generate_maze():
+        print("MazeGenerator: 미로 생성 성공")
+    
+    maze_braider = MazeBraider(maze)
+    if maze_braider.braid_maze():
+        if maze_braider.check_there_is_no_dead_end():
+            print("MazeBraider: 막다른 길 제거 성공")
+            maze.print_maze(start_row, start_col)
+        else:
+            print("MazeBraider: 막다른 길 제거 실패")

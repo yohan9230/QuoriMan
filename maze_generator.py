@@ -114,5 +114,5 @@ if __name__ == "__main__":
     start_col = start_col-1
     maze_generator = MazeGenerator(start_row, start_col, maze)
     if maze_generator.generate_maze():
-        print("미로 생성 성공")
+        print("MazeGenerator: 미로 생성 성공")
         maze.print_maze(start_row, start_col)
