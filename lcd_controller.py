@@ -7,11 +7,15 @@ import digitalio
 # LCD 디스플레이 컨트롤러 칩
 from adafruit_rgb_display import st7789
 
-class LCDController:
+from PIL import Image, ImageDraw
+
+# commander <- 이것만 사용하면 됨.
+class LCD:
+    """commander <- 이것만 사용하면 됨."""
     # 자동 완성 켜지게 먼저 선언
-    chip_select_pin:digitalio.DigitalInOut
-    data_command_pin:digitalio.DigitalInOut
-    reset_display_controller_chip_pin:digitalio.DigitalInOut
+    CS_chip_select_pin:digitalio.DigitalInOut
+    DC_data_command_pin:digitalio.DigitalInOut
+    RST_reset_display_controller_chip_pin:digitalio.DigitalInOut
     backlight_pin:digitalio.DigitalInOut
     
     # 너비, 높이 등 st7789에 넣을 상수들
@@ -20,6 +24,7 @@ class LCDController:
     X_OFFSET = 0
     Y_OFFSET = 80
     BAUDRATE=24000000
+    
     
     def __init__(self):
         # CS 핀 입출력 객체
@@ -37,8 +42,8 @@ class LCDController:
         
         # -----------------------------------------------------
         
-        # LCD 칩을 다루는 드라이버 객체
-        self.lcd_chip_controller = st7789.ST7789(
+        # LCD 컨트롤러 칩 객체
+        self.commander = st7789.ST7789(
             self.spi, 
             cs = self.CS_chip_select_pin, 
             dc = self.DC_data_command_pin, 
@@ -54,3 +59,28 @@ class LCDController:
         self.backlight_pin.switch_to_output()
         # 값을 True 로 바꿔서 백라이트를 켬
         self.backlight_pin.value = True
+        
+    # image 사진을 그대로 LCD에 출력하는 함수
+    def show_the_image(self, image):
+        """- image 사진을 그대로 LCD에 출력하는 함수. 
+        - 반환값 없음"""
+        self.commander.image(image)
+
+
+# -----------------------------------------------------
+
+if __name__ == "__main__":
+    tmp_lcd = LCD()
+    tmp_commander = tmp_lcd.commander
+    
+    # 임시로 배경으로 쓸 이미지 생성
+    tmp_background = Image.new("RGB",(tmp_lcd.WIDTH, tmp_lcd.HEIGHT))
+    
+    # 배경을 기반으로 그릴 수 있는 ImageDraw 객체 생성
+    tmp_imagedraw = ImageDraw.Draw(tmp_background)
+    
+    # 배경 위에 그림을 그림. 사각형. 빨간색
+    tmp_imagedraw.rectangle((0, 0, 39, 39), fill = (255, 0, 0))
+    
+    # 배경에 쓸 이미지를 LCD로 내보냄. ImageDraw로 그린것도 같이 나옴.
+    tmp_lcd.show_the_image(tmp_background)
