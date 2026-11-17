@@ -15,6 +15,8 @@ class MazeBraider:
         """모든 칸의 4방향 벽을 조회 및 막다른 길 위치 및 막다른 길마다 벽 위치 및 방향 저장"""
         for row in range(self.maze.maze_size):
             for col in range(self.maze.maze_size):
+                self.dead_end_pos.clear()
+                self.dead_end_dir.clear()
                 # 외벽을 무시하고 벽 개수를 셈
                 wall_dir = self.maze.find_wall(row, col, True)
                 # 한 위치에서 벽이 3개 이상이라면 막다른 길(외벽 제외)
@@ -41,7 +43,20 @@ class MazeBraider:
             raise RuntimeError("MazeBraider: 방향 리스트 섞는 도중 누락된 위치가 생겼습니다.")
         self.shuffle_dir = shuffled_dir_list
     
-    
-    
-                    
+    # 최종적으로 막다른 길을 모두 뚫는 함수
+    def braid_maze(self):
+        for index in range(len(self.dead_end_pos)):
+            pos = self.dead_end_pos[index]
+            # 벽 리스트 중 가장 첫번째 방향의 벽을 제거
+            breaking_wall_dir = self.dead_end_dir[index].pop(0)
+        self.maze.change_wall(pos[0], pos[1], breaking_wall_dir, False)
         
+    # 막다른 길이 없는지 확인하여 반환하는 함수
+    def check_there_is_no_dead_end(self):
+        """- 막다른 길이 없는지 확인하여 반환하는 함수
+        - 막다른 길이 하나라도 있으면 False, 하나도 없다면 True 반환"""
+        self.find_end_pos_and_wall_dir(self)
+        if not self.dead_end_dir and not self.dead_end_pos:
+            return True
+        else:
+            return False
