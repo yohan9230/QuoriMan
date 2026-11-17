@@ -13,7 +13,7 @@ class MazeBraider:
     # row, col에서 막다른 길인지 확인하여 반환하는 함수
     def is_dead_end (self, row:int, col: int):
         """row, col에서 막다른 길인지 확인하여 반환하는 함수"""
-        wall_num = self.maze.cont_wall()
+        wall_num = self.maze.count_wall(row, col, False)
         if wall_num >= 3:
             return True
         elif wall_num <= 2 and wall_num >= 0:
