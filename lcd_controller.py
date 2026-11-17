@@ -9,9 +9,7 @@ from adafruit_rgb_display import st7789
 
 from PIL import Image, ImageDraw
 
-# commander <- 이것만 사용하면 됨.
 class LCD:
-    """commander <- 이것만 사용하면 됨."""
     # 자동 완성 켜지게 먼저 선언
     CS_chip_select_pin:digitalio.DigitalInOut
     DC_data_command_pin:digitalio.DigitalInOut
@@ -42,8 +40,9 @@ class LCD:
         
         # -----------------------------------------------------
         
-        # LCD 컨트롤러 칩 객체
-        self.commander = st7789.ST7789(
+        # LCD 컨트롤러 칩(st7789) 하드웨어를 조작할수 있게 해주는 드라이버 객체.
+        # 클래스 내부에서만 사용해서, _를 앞에 붙였음.
+        self._driver = st7789.ST7789(
             self.spi, 
             cs = self.CS_chip_select_pin, 
             dc = self.DC_data_command_pin, 
@@ -64,14 +63,13 @@ class LCD:
     def show_the_image(self, image):
         """- image 사진을 그대로 LCD에 출력하는 함수. 
         - 반환값 없음"""
-        self.commander.image(image)
+        self._driver.image(image)
 
 
 # -----------------------------------------------------
 
 if __name__ == "__main__":
     tmp_lcd = LCD()
-    tmp_commander = tmp_lcd.commander
     
     # 임시로 배경으로 쓸 이미지 생성
     tmp_background = Image.new("RGB",(tmp_lcd.WIDTH, tmp_lcd.HEIGHT))
