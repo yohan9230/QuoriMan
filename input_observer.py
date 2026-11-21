@@ -51,7 +51,7 @@ class InputObserver:
     def read_six_button(self):
         """6번 버튼의 입력 값을 바로 반환함."""
         return self.is_pressed(self.six_button_pin)
-    
+
 # -----------------------------------------------------
 
 if __name__ == "__main__":
