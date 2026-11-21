@@ -31,8 +31,8 @@ class Renderer:
         self.wall_thickness = 1
         
         # 미로 그림 시작 지점. 모든 그림의 시작지점은 왼쪽 상단으로 고정
-        self.start_x = 9
-        self.start_y = 19
+        self.start_x = 10
+        self.start_y = 20
         
         # 배경색 및 벽 색
         self.background_color = (0,0,0)
