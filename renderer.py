@@ -129,24 +129,26 @@ class Renderer:
         anchor = self.find_anchor_pillar_pixel_pos(row, col)
         match dir:
             case None:
-                if maze.is_there_wall(row, col, Direction.UP): self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
-                if maze.is_there_wall(row, col, Direction.RIGHT): self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
-                if maze.is_there_wall(row, col, Direction.DOWN): self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
-                if maze.is_there_wall(row, col, Direction.LEFT): self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
+                for d in Direction:
+                    self.draw_wall(maze, row, col, d)
             case Direction.UP:
-                if maze.is_there_wall(row, col, Direction.UP): self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.UP): 
+                    self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
             case Direction.RIGHT:
-                if maze.is_there_wall(row, col, Direction.RIGHT): self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.RIGHT): 
+                    self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
             case Direction.DOWN:
-                if maze.is_there_wall(row, col, Direction.DOWN): self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.DOWN): 
+                    self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
             case Direction.LEFT:
-                if maze.is_there_wall(row, col, Direction.LEFT): self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.LEFT): 
+                    self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
             case _:
-                raise RuntimeError("Renderer: 렌더링 할 수 없는 벽 방햐입니다.")
+                raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
         
-    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수
+    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함
     def draw_maze(self, maze:Maze):
-        """최종적으로 미로를 렌더링 하는 함수. LCD 출력은 안함"""
+        """최종적으로 모든 칸의 벽을 렌더링 하는 함수. LCD 출력은 안함"""
         maze_size = maze.maze_size
 
         
