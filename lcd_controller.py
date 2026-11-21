@@ -7,8 +7,6 @@ import digitalio
 # LCD 디스플레이 컨트롤러 칩
 from adafruit_rgb_display import st7789
 
-from PIL import Image, ImageDraw
-
 class LCD:
     # 자동 완성 켜지게 먼저 선언
     CS_chip_select_pin:digitalio.DigitalInOut
@@ -69,6 +67,8 @@ class LCD:
 # -----------------------------------------------------
 
 if __name__ == "__main__":
+    from PIL import Image, ImageDraw
+    
     tmp_lcd = LCD()
     
     # 임시로 배경으로 쓸 이미지 생성

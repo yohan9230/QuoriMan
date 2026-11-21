@@ -1,6 +1,5 @@
 # DFS를 기반으로 미로를 만드는 소스 파일. 막다른 길은 존재. 출구/입구 아직 없음.
 from maze import Maze
-from maze_generator import MazeGenerator
 import random
 
 class MazeBraider:
@@ -76,6 +75,8 @@ class MazeBraider:
 # -----------------------------------------------------
 
 if __name__ == "__main__":
+    from maze_generator import MazeGenerator
+    
     maze_size = int(input("미로 크기 입력: "))
     maze = Maze(maze_size)
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
