@@ -8,6 +8,9 @@ from lcd_controller import LCD
 from renderer import Renderer
 from input_observer import InputObserver
 
+import random
+import time
+
 # 변경 가능한 상수
 start_icon_margin = 0
 player_icon_margin = 4
@@ -15,10 +18,19 @@ player_start_facing = Direction.UP
 maze_size = 10
 
 def main():
+    # -----------------------------------------------------
     maze = Maze(maze_size)
     
-    start_row, start_col = map(int, input("시작 행, 열 번호 입력(범위: [0,0]~[미로크기-1,미로크기-1], 띄어쓰기로 구분): ").split())
-    maze_generator = MazeGenerator(maze, start_row, start_col)
+    # 미로 시작 위치 랜덤으로 정해짐
+    maze_start_row = random.randint(0,maze_size-1)
+    maze_start_col = random.randint(0,maze_size-1)
+    maze_generator = MazeGenerator(maze = maze, start_row = maze_start_row, start_col = maze_start_col)
+    
+    # 플레이어 시작 위치 랜덤으로 정해짐
+    # 나중에 스폰 위치를 테두리 부분으로 고정 필요
+    player_start_row = random.randint(0,maze_size-1)
+    player_start_col = random.randint(0,maze_size-1)
+    
     if maze_generator.generate_maze():
         print("MazeGenerator: 미로 생성 성공")
     
@@ -29,15 +41,27 @@ def main():
         else:
             print("MazeBraider: 막다른 길 제거 실패")
     
-    player = Player(maze, start_row = start_row, start_col = start_col, facing = player_start_facing)
-    
+    # 플레이어 생성
+    player = Player(maze, start_row = player_start_row, start_col = player_start_col, facing = player_start_facing)
     maze_renderer = Renderer(maze, player = player, player_margin = player_icon_margin, start_point_icon_margin = start_icon_margin)
-    # 
+    # 미로 이미지 만들기
     maze_image = maze_renderer.draw_maze()
     
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
     lcd_controller = LCD()
+    # 첫 화면 내보내기
     lcd_controller.show_the_image(maze_image)
+    
+    # 라즈베리 파이의 입력 신호를 받는 객체 생성
+    signal_observer = InputObserver()
+    
+    # -----------------------------------------------------
+    
+    while True:
+        if signal_observer.check_direction_changed():
+            print(signal_observer.current_direction.name)
+        time.sleep(0.02)
+    
 
 
 if __name__ == "__main__":
