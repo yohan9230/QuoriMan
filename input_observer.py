@@ -51,13 +51,6 @@ class InputObserver:
     def read_six_button(self):
         """6번 버튼의 입력 값을 바로 반환함."""
         return self.is_pressed(self.six_button_pin)
-
-    def is_updated(self, before_signal:bool, pin:digitalio.DigitalInOut):
-        if before_signal: return False
-        if self.is_pressed(pin): return True
-        return False
-        
-        
     
 # -----------------------------------------------------
 
@@ -66,37 +59,32 @@ if __name__ == "__main__":
     
     tmp_input_observer = InputObserver()
     
-    # 위, 오른쪽, 아래, 왼쪽 순서대로 기존 신호값 저장.
-    current_dir_signal = []
+    # 현재 조이스틱 방향을 저장함. 방향이 없으면 None.
+    current_direction = tmp_input_observer.read_dirction_from_joystick()
     
-    for d in Direction:
-        current_dir_signal.append(tmp_input_observer.is_pressed(tmp_input_observer.joystick_pin_list[d]))
-        
+    # 현재 5번, 6번 버튼의 눌림 상태를 저장함
     current_five_button = tmp_input_observer.is_pressed(tmp_input_observer.five_button_pin)
     current_six_button = tmp_input_observer.is_pressed(tmp_input_observer.six_button_pin)
     
     while True:
-        # 4방향 조이스틱 입력 검사
+        # 현재 눌린 방향 검사
         dir = tmp_input_observer.read_dirction_from_joystick()
-        ## 눌린 값이 없다면 4방향 모두 눌리지 않음 -> 전부 False로 설정
-        if dir == None:
-            current_dir_signal = [False, False, False, False]
-        else:
-            if tmp_input_observer.is_updated(current_dir_signal[dir], tmp_input_observer.joystick_pin_list[dir]):
-                for d in Direction:
-                    current_dir_signal[d] = False
-                current_dir_signal[dir] = True
-                print(dir.name)
+        # 이전 값과 다르다면 값 저장 및 신호 출력
+        if dir != current_direction:
+            current_direction = dir
+            if dir != None: print(dir.name)
         # 5번 버튼 검사
-        if tmp_input_observer.is_updated(current_five_button, tmp_input_observer.five_button_pin):
-            current_five_button = True
+        this_time_five_button_signal = tmp_input_observer.is_pressed(tmp_input_observer.five_button_pin)
+        if this_time_five_button_signal and this_time_five_button_signal != current_five_button:
+            current_five_button = this_time_five_button_signal
             print("5번 버튼 눌림")
-        else:
-            current_five_button = tmp_input_observer.is_pressed(tmp_input_observer.five_button_pin)
+        elif current_five_button and not this_time_five_button_signal:
+            current_five_button = False
         # 6번 버튼 검사
-        if tmp_input_observer.is_updated(current_six_button, tmp_input_observer.six_button_pin):
-            current_six_button = True
+        this_time_six_button_signal = tmp_input_observer.is_pressed(tmp_input_observer.six_button_pin)
+        if this_time_six_button_signal and this_time_six_button_signal != current_six_button:
+            current_six_button = this_time_six_button_signal
             print("6번 버튼 눌림")
-        else:
-            current_six_button = tmp_input_observer.is_pressed(tmp_input_observer.six_button_pin)
+        elif current_six_button and not this_time_six_button_signal:
+            current_six_button = False
         time.sleep(0.02)
