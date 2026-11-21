@@ -57,9 +57,16 @@ def main():
     
     # -----------------------------------------------------
     
+    current_turn = 0
     while True:
         if signal_observer.check_direction_changed():
-            print(signal_observer.current_direction.name)
+            if player.move(signal_observer.current_direction):
+                current_turn += 1
+                maze_image = maze_renderer.draw_maze()
+                lcd_controller.show_the_image(maze_image)
+                print("현재 턴수: ", end = "")
+                print(current_turn)
+            
         time.sleep(0.02)
     
 
