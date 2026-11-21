@@ -33,9 +33,9 @@ class Maze:
             raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
         self.maze_size = maze_size
         # 수평 벽 리스트 (maze_size+1 * maze_size), True: 벽 있음
-        self.horizontal_wall_list = []
+        self._horizontal_wall_list = []
         # 수직 벽 리스트 (maze_size * maze_size+1), True: 벽 있음
-        self.vertical_wall_list = []
+        self._vertical_wall_list = []
         
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
@@ -47,14 +47,14 @@ class Maze:
             row = []
             for j in range(self.maze_size):
                 row.append(True)
-            self.horizontal_wall_list.append(row)
+            self._horizontal_wall_list.append(row)
 
     ## 수평 벽 정보 출력 함수
     def print_horizontal_wall_list(self):
         """수평 벽 리스트 출력 함수"""
         for i in range(self.maze_size+1):
             for j in range(self.maze_size):
-                print(self.horizontal_wall_list[i][j], end = " ")
+                print(self._horizontal_wall_list[i][j], end = " ")
             print("")
 
     ## 수직 벽 정보 리스트 만드는 함수
@@ -64,14 +64,14 @@ class Maze:
             row = []
             for j in range(self.maze_size+1):
                 row.append(True)
-            self.vertical_wall_list.append(row)
+            self._vertical_wall_list.append(row)
 
     ## 수직 벽 정보 출력 함수
     def print_vertical_wall_list(self):
         """수직 벽 리스트 출력 함수"""
         for i in range(self.maze_size):
             for j in range(self.maze_size+1):
-                print(self.vertical_wall_list[i][j], end = " ")
+                print(self._vertical_wall_list[i][j], end = " ")
             print("")
 
     ## 벽 존재 여부 판단 함수
@@ -81,13 +81,13 @@ class Maze:
             raise ValueError("잘못된 위치: 미로 밖")
         match d:
             case Direction.UP:
-                return self.horizontal_wall_list[row][col]
+                return self._horizontal_wall_list[row][col]
             case Direction.DOWN:
-                return self.horizontal_wall_list[row+1][col]
+                return self._horizontal_wall_list[row+1][col]
             case Direction.LEFT:
-                return self.vertical_wall_list[row][col]
+                return self._vertical_wall_list[row][col]
             case Direction.RIGHT:
-                return self.vertical_wall_list[row][col+1]
+                return self._vertical_wall_list[row][col+1]
             case _:
                 raise ValueError("벽 조회에 불가능한 방향 조회")
 
@@ -98,13 +98,13 @@ class Maze:
             raise ValueError("잘못된 위치: 미로 밖")
         match d:
             case Direction.UP:
-                self.horizontal_wall_list[row][col] = change
+                self._horizontal_wall_list[row][col] = change
             case Direction.DOWN:
-                self.horizontal_wall_list[row+1][col] = change
+                self._horizontal_wall_list[row+1][col] = change
             case Direction.LEFT:
-                self.vertical_wall_list[row][col] = change
+                self._vertical_wall_list[row][col] = change
             case Direction.RIGHT:
-                self.vertical_wall_list[row][col+1] = change
+                self._vertical_wall_list[row][col+1] = change
             case _:
                 raise ValueError("벽 조회에 불가능한 방향 조회")
     
