@@ -53,8 +53,9 @@ class Renderer:
     # (row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환
     def find_inner_anchor_point(self, row:int, col:int, margin:int = 0):
         """(row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환"""
-        return [self.start_x + self.cell_size*col + self.wall_thickness + margin, 
-                self.start_y + self.cell_size * row + self.wall_thickness + margin]
+        pillar_anchor_point = self.find_pillar_anchor_point(row, col)
+        return [pillar_anchor_point[0] + self.wall_thickness + margin, 
+                pillar_anchor_point[1] + self.wall_thickness + margin]
     
     # 불가능한 시작/끝 좌표가 없는지 확인하는 함수. 문제 없을시 True 반환
     def is_point_calculation_correct(self, points:list):
@@ -162,7 +163,7 @@ class Renderer:
         self.maze_brush.ellipse(points, fill = "red")
         
     # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. background 이미지 반환
-    def draw_maze(self, draw_start_cell:bool = None, start_row:int = None, start_col:int = None, start_icon_margin:int = 0):
+    def draw_maze(self, draw_start_cell:bool = False, start_row:int = None, start_col:int = None, start_icon_margin:int = 0):
         """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
         - LCD 출력은 안함. 
         - background 이미지 반환"""
