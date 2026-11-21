@@ -37,6 +37,10 @@ class Renderer:
         # 배경색 및 벽 색
         self.background_color = (0,0,0)
         self.wall_color = (255, 255, 255)
+        
+        # 배경 이미지와 해당 배경위에 그림을 그릴 수 있는 "브러시" 객체 생성
+        self.background = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
+        self.maze_brush = ImageDraw.Draw(self.background)
     
     # (row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환
     def find_anchor_pillar_pixel_pos(self, row:int, col:int):
@@ -50,6 +54,7 @@ class Renderer:
         if start_x > end_x or start_y > end_y:
             return False
         return True
+    
     
     # 미로 한칸의 상단 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
     def return_up_wall_points(self, anchor:list):
@@ -103,6 +108,7 @@ class Renderer:
         else:
             raise RuntimeError("Renderer: 좌측 벽 렌더링 좌표가 잘못 계산되었습니다.")
     
+    
     # 벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
     def return_inner_cell_points(self, anchor:list):
         """벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
@@ -116,15 +122,31 @@ class Renderer:
         else:
             raise RuntimeError("Renderer: 벽을 제외한 내부 공간의 렌더링 좌표가 잘못 계산되었습니다.")
     
-    # row, col 칸에서 상/하/좌/우 벽을 최종적으로 렌더링 하는 함수. 벽 없으면 색칠 안함.
-    def draw_wall(self, maze:Maze, anchor:list, dir:Direction):
+    # row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함
+    def draw_wall(self, maze:Maze, row:int, col:int, dir:Direction = None):
+        # 특정 방향을 지정하지 않았다면, 모든 방향에 대해 벽 렌더링 수행
+        anchor = self.find_anchor_pillar_pixel_pos(row, col)
+        match dir:
+            case None:
+                if maze.is_there_wall(row, col, Direction.UP): self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.RIGHT): self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.DOWN): self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
+                if maze.is_there_wall(row, col, Direction.LEFT): self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
+            case Direction.UP:
+                if maze.is_there_wall(row, col, Direction.UP): self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
+            case Direction.RIGHT:
+                if maze.is_there_wall(row, col, Direction.RIGHT): self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
+            case Direction.DOWN:
+                if maze.is_there_wall(row, col, Direction.DOWN): self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
+            case Direction.LEFT:
+                if maze.is_there_wall(row, col, Direction.LEFT): self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
+            case _:
+                raise RuntimeError("Renderer: 렌더링 할 수 없는 벽 방햐입니다.")
         
-    
-    # 최종적으로 미로를 렌더링 하는 함수. LCD 출력은 안함
+    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수
     def draw_maze(self, maze:Maze):
         """최종적으로 미로를 렌더링 하는 함수. LCD 출력은 안함"""
         maze_size = maze.maze_size
-        background = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
-        maze_brush = ImageDraw.Draw(background)
+
         
         
