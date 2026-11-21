@@ -26,11 +26,23 @@ class JoystickObserver:
         self.six_button_pin = digitalio.DigitalInOut(board.D6)
         self.six_button_pin.switch_to_input(pull=digitalio.Pull.UP)
         
+    # 눌렸을때와 안눌렸을때 bool 값이 헷갈려서 뒤집는 함수 선언. 신호는 반드시 이 함수로만 호출할 것.
+    def is_pressed(self, pin:digitalio.DigitalInOut):
+        """- 눌렸을때와 안눌렸을때 bool 값이 헷갈려서 뒤집는 함수 선언. 
+        - 신호는 반드시 이 함수로만 호출할 것."""
+        return not pin.value
+        
     # 위, 오른쪽, 아래, 왼쪽을 순서대로 눌려있는지 확하여 눌린 방향을 반환. 없으면 None 반환
     def read_dirction_from_joystick(self):
         """위, 오른쪽, 아래, 왼쪽을 순서대로 눌려있는지 확하여 눌린 방향을 반환. 없으면 None 반환"""
-        if not self.joystick_up_pin.value: return Direction.UP
-        elif not self.joystick_right_pin.value: return Direction.RIGHT
-        elif not self.joystick_down_pin: return Direction.DOWN
-        elif not self.joystick_left_pin: return Direction.LEFT
+        if self.is_pressed(self.joystick_up_pin): return Direction.UP
+        elif self.is_pressed(self.joystick_right_pin): return Direction.RIGHT
+        elif self.is_pressed(self.joystick_down_pin): return Direction.DOWN
+        elif self.is_pressed(self.joystick_left_pin): return Direction.LEFT
         else: return None
+    
+    def read_five_button(self):
+        return self.is_pressed(self.five_button_pin)
+    
+    def read_six_button(self):
+        return self.is_pressed(self.six_button_pin)
