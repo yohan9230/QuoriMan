@@ -42,8 +42,8 @@ class Renderer:
         self.wall_color = (255, 255, 255)
         
         # 배경 이미지와 해당 배경위에 그림을 그릴 수 있는 "브러시" 객체 생성
-        self.background = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
-        self.maze_brush = ImageDraw.Draw(self.background)
+        self.maze_image = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
+        self.maze_brush = ImageDraw.Draw(self.maze_image)
     
     # (row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환
     def find_pillar_anchor_point(self, row:int, col:int):
@@ -162,11 +162,11 @@ class Renderer:
         points = self.return_inner_cell_points(pillar_anchor, margin=margin)
         self.maze_brush.ellipse(points, fill = "red")
         
-    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. background 이미지 반환
+    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. maze_image 이미지 반환
     def draw_maze(self, draw_start_cell:bool = False, start_row:int = None, start_col:int = None, start_icon_margin:int = 0):
         """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
         - LCD 출력은 안함. 
-        - background 이미지 반환"""
+        - maze_image 이미지 반환"""
         # 배경을 그리기 전, 기본 배경으로 초기화
         self.maze_brush.rectangle((0, 0, self.screen_width-1, self.screen_height-1), self.background_color)
         maze_size = self.maze.maze_size
@@ -175,7 +175,7 @@ class Renderer:
                 self.draw_wall(row, col)
         if draw_start_cell:
             self.draw_start_point(self.find_pillar_anchor_point(start_row, start_col), margin = start_icon_margin)
-        return self.background
+        return self.maze_image
 
 # -----------------------------------------------------
 # LCD에 직접 미로를 띄움
