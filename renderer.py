@@ -23,9 +23,11 @@ class Renderer:
     maze:Maze
     player_margin:int
     start_point_icon_margin:int
+    player:Player
     
-    def __init__(self, maze:Maze, player_margin:int = 2, start_point_icon_margin:int = 2):
+    def __init__(self, maze:Maze, player:Player, player_margin:int = 2, start_point_icon_margin:int = 2):
         self.maze = maze
+        self.player = player
         # 상수
         # 화면 가로, 세로 크기(픽셀)
         self.screen_width = 240
@@ -170,7 +172,7 @@ class Renderer:
         self.maze_brush.rectangle(points, fill = "blue")
         
     # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. maze_image 이미지 반환
-    def draw_maze(self, player:Player, draw_start_cell:bool = False, draw_player:bool = True, start_row:int = None, start_col:int = None):
+    def draw_maze(self, draw_start_point_icon:bool = False, draw_player:bool = True):
         """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
         - LCD 출력은 안함. 
         - maze_image 이미지 반환"""
@@ -180,18 +182,18 @@ class Renderer:
         for row in range(maze_size):
             for col in range(maze_size):
                 self.draw_wall(row, col)
-        if draw_start_cell:
-            self.draw_start_point_icon(self.find_pillar_anchor_point(start_row, start_col))
+        if draw_start_point_icon:
+            self.draw_start_point_icon(self.find_pillar_anchor_point(self.maze.start_row, self.maze.start_col))
         if draw_player:
-            self.draw_player(player)
+            self.draw_player()
         return self.maze_image
 
     # -----------------------------------------------------
 
     # 플레이어를 렌더링 하는 함수
-    def draw_player(self, player:Player):
+    def draw_player(self):
         """플레이어를 렌더링 하는 함수"""
-        pillar_anchor_point = self.find_pillar_anchor_point(player.current_row, player.current_col)
+        pillar_anchor_point = self.find_pillar_anchor_point(self.player.current_row, self.player.current_col)
         points = self.return_inner_cell_points(pillar_anchor_point, margin = self.player_margin)
         self.maze_brush.ellipse(points, fill = "red")
         
@@ -212,7 +214,7 @@ if __name__ == "__main__":
     maze_size = int(input("미로 크기 입력: "))
     maze = Maze(maze_size)
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(범위: [0,0]~[미로크기-1,미로크기-1], 띄어쓰기로 구분): ").split())
-    maze_generator = MazeGenerator(start_row, start_col, maze)
+    maze_generator = MazeGenerator(maze = maze, start_row = start_row, start_col = start_col)
     if maze_generator.generate_maze():
         print("MazeGenerator: 미로 생성 성공")
     
@@ -223,10 +225,10 @@ if __name__ == "__main__":
         else:
             print("MazeBraider: 막다른 길 제거 실패")
     
-    player = Player(maze, start_row = start_row, start_col = start_col)
+    player = Player(maze = maze, start_row = start_row, start_col = start_col)
     
-    maze_renderer = Renderer(maze, player_margin= player_icon_margin, start_point_icon_margin = start_icon_margin)
-    maze_image = maze_renderer.draw_maze(player, draw_start_cell=True, start_row = start_row, start_col = start_col, start_icon_margin = start_icon_margin)
+    maze_renderer = Renderer(maze, player = player, player_margin= player_icon_margin, start_point_icon_margin = start_icon_margin)
+    maze_image = maze_renderer.draw_maze(draw_start_point_icon = True)
     
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
     lcd_controller = LCD()

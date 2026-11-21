@@ -80,7 +80,7 @@ if __name__ == "__main__":
     maze_size = int(input("미로 크기 입력: "))
     maze = Maze(maze_size)
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(범위: [0,0]~[미로크기-1,미로크기-1], 띄어쓰기로 구분): ").split())
-    maze_generator = MazeGenerator(start_row, start_col, maze)
+    maze_generator = MazeGenerator(maze = maze, start_row = start_row, start_col = start_col)
     if maze_generator.generate_maze():
         print("MazeGenerator: 미로 생성 성공")
     

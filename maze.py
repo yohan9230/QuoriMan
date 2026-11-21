@@ -37,6 +37,10 @@ class Maze:
         # 수직 벽 리스트 (maze_size * maze_size+1), True: 벽 있음
         self._vertical_wall_list = []
         
+        # maze_generator가 미로의 생성 시작 위치를 저장할 것임.
+        self.start_row = None
+        self.start_col = None
+        
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
 

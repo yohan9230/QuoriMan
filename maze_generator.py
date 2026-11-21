@@ -11,12 +11,17 @@ class MazeGenerator():
     current_col:int
     maze:Maze
     
-    def __init__(self, start_row:int, start_col:int, maze:Maze):
+    def __init__(self, maze:Maze, start_row:int = 0, start_col:int = 0):
         if maze.out_of_maze(start_row, start_col):
             raise ValueError("MazeGenerator: 시작 위치가 잘못되었습니다.")
         self.current_row = start_row
         self.current_col = start_col
+        
+        # 미로 객체에 미로 관련 속성 저장
         self.maze = maze
+        self.maze.start_row = start_row
+        self.maze.start_col = start_col
+        
         # 방문 여부를 표현하는 2차원 bool 기반 리스트
         self.visited = []
         # 방문한 위치를 기록하는 스택
@@ -113,7 +118,7 @@ if __name__ == "__main__":
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
     start_row = start_row-1
     start_col = start_col-1
-    maze_generator = MazeGenerator(start_row, start_col, maze)
+    maze_generator = MazeGenerator(maze = maze, start_row=start_row, start_col=start_col)
     if maze_generator.generate_maze():
         print("MazeGenerator: 미로 생성 성공")
         maze.print_maze(start_row, start_col)
