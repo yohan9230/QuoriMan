@@ -146,10 +146,18 @@ class Renderer:
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
         
-    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함
+    # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. background 이미지 반환
     def draw_maze(self, maze:Maze):
-        """최종적으로 모든 칸의 벽을 렌더링 하는 함수. LCD 출력은 안함"""
+        """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
+        - LCD 출력은 안함. 
+        - background 이미지 반환"""
+        # 배경을 그리기 전, 기본 배경으로 초기화
+        self.maze_brush.rectangle((0, 0, self.screen_width-1, self.screen_height-1), self.background_color)
         maze_size = maze.maze_size
+        for row in range(maze_size):
+            for col in range(maze_size):
+                self.draw_wall(maze, row, col)
+        return self.background
+    
+# -----------------------------------------------------
 
-        
-        
