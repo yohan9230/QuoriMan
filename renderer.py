@@ -124,6 +124,7 @@ class Renderer:
     
     # row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함
     def draw_wall(self, maze:Maze, row:int, col:int, dir:Direction = None):
+        """row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함"""
         # 특정 방향을 지정하지 않았다면, 모든 방향에 대해 벽 렌더링 수행
         anchor = self.find_anchor_pillar_pixel_pos(row, col)
         match dir:
