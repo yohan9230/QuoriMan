@@ -20,10 +20,10 @@ class Renderer:
     background_color:tuple
     wall_color:tuple
     maze:Maze
+    inner_margin:int
     
     def __init__(self, maze:Maze):
         self.maze = maze
-        
         # 상수
         # 화면 가로, 세로 크기(픽셀)
         self.screen_width = 240
@@ -46,14 +46,15 @@ class Renderer:
         self.maze_brush = ImageDraw.Draw(self.background)
     
     # (row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환
-    def find_anchor_pillar_pixel_pos(self, row:int, col:int):
+    def find_pillar_anchor_point(self, row:int, col:int):
         """(row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환"""
         return [self.start_x + self.cell_size*col, self.start_y + self.cell_size * row]
     
     # (row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환
-    def find_inner_anchor_pixel_pos(self, row:int, col:int):
+    def find_inner_anchor_point(self, row:int, col:int, margin:int = 0):
         """(row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환"""
-        return [self.start_x + self.cell_size*col + self.wall_thickness, self.start_y + self.cell_size * row + self.wall_thickness]
+        return [self.start_x + self.cell_size*col + self.wall_thickness + margin, 
+                self.start_y + self.cell_size * row + self.wall_thickness + margin]
     
     # 불가능한 시작/끝 좌표가 없는지 확인하는 함수. 문제 없을시 True 반환
     def is_point_calculation_correct(self, points:list):
@@ -65,12 +66,12 @@ class Renderer:
     
     
     # 미로 한칸의 상단 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
-    def return_up_wall_points(self, anchor:list):
+    def return_up_wall_points(self, pillar_anchor:list):
         """미로 한칸의 상단 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
-        start_x = anchor[0]
-        start_y = anchor[1]
-        end_x = anchor[0] + self.cell_size - 1
-        end_y = anchor[1] + self.wall_thickness - 1
+        start_x = pillar_anchor[0]
+        start_y = pillar_anchor[1]
+        end_x = pillar_anchor[0] + self.cell_size - 1
+        end_y = pillar_anchor[1] + self.wall_thickness - 1
         points = [start_x, start_y, end_x, end_y]
         if self.is_point_calculation_correct(points):
             return points
@@ -78,12 +79,12 @@ class Renderer:
             raise RuntimeError("Renderer: 상단 벽 렌더링 좌표가 잘못 계산되었습니다.")
     
     # 미로 한칸의 우측 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
-    def return_right_wall_points(self, anchor:list):
+    def return_right_wall_points(self, pillar_anchor:list):
         """미로 한칸의 우측 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
-        start_x = anchor[0]+self.cell_size-1-(self.wall_thickness-1)
-        start_y = anchor[1]
-        end_x = anchor[0]+self.cell_size-1
-        end_y = anchor[1]+self.cell_size-1
+        start_x = pillar_anchor[0]+self.cell_size-1-(self.wall_thickness-1)
+        start_y = pillar_anchor[1]
+        end_x = pillar_anchor[0]+self.cell_size-1
+        end_y = pillar_anchor[1]+self.cell_size-1
         points = [start_x, start_y, end_x, end_y]
         if self.is_point_calculation_correct(points):
             return points
@@ -91,12 +92,12 @@ class Renderer:
             raise RuntimeError("Renderer: 우측 벽 렌더링 좌표가 잘못 계산되었습니다.")
     
     # 미로 한칸의 하단 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
-    def return_down_wall_points(self, anchor:list):
+    def return_down_wall_points(self, pillar_anchor:list):
         """미로 한칸의 하단 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
-        start_x = anchor[0]
-        start_y = anchor[1]+self.cell_size-1-(self.wall_thickness-1)
-        end_x = anchor[0]+self.cell_size-1
-        end_y = anchor[1]+self.cell_size-1
+        start_x = pillar_anchor[0]
+        start_y = pillar_anchor[1]+self.cell_size-1-(self.wall_thickness-1)
+        end_x = pillar_anchor[0]+self.cell_size-1
+        end_y = pillar_anchor[1]+self.cell_size-1
         points = [start_x, start_y, end_x, end_y]
         if self.is_point_calculation_correct(points):
             return points
@@ -104,12 +105,12 @@ class Renderer:
             raise RuntimeError("Renderer: 하단 벽 렌더링 좌표가 잘못 계산되었습니다.")
     
     # 미로 한칸의 좌측 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
-    def return_left_wall_points(self, anchor:list):
+    def return_left_wall_points(self, pillar_anchor:list):
         """미로 한칸의 좌측 벽의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
-        start_x = anchor[0]
-        start_y = anchor[1]
-        end_x = anchor[0]+(self.wall_thickness-1)
-        end_y = anchor[1]+self.cell_size-1
+        start_x = pillar_anchor[0]
+        start_y = pillar_anchor[1]
+        end_x = pillar_anchor[0]+(self.wall_thickness-1)
+        end_y = pillar_anchor[1]+self.cell_size-1
         points = [start_x, start_y, end_x, end_y]
         if self.is_point_calculation_correct(points):
             return points
@@ -118,15 +119,15 @@ class Renderer:
     
     
     # 벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
-    def return_inner_cell_points(self, anchor:list):
+    def return_inner_cell_points(self, pillar_anchor:list, margin:int = 0):
         """벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
-        start_x = anchor[0] + self.wall_thickness
-        start_y = anchor[1] + self.wall_thickness
-        end_x = anchor[0] + (self.cell_size-1) - self.wall_thickness
-        end_y = anchor[1] + (self.cell_size-1) - self.wall_thickness
-        points = [start_x, start_y, end_x, end_y]
-        if self.is_point_calculation_correct(points):
-            return points
+        start_x = pillar_anchor[0] + self.wall_thickness + margin
+        start_y = pillar_anchor[1] + self.wall_thickness + margin
+        end_x = pillar_anchor[0] + (self.cell_size-1) - self.wall_thickness - margin
+        end_y = pillar_anchor[1] + (self.cell_size-1) - self.wall_thickness - margin
+        inner_points = [start_x, start_y, end_x, end_y]
+        if self.is_point_calculation_correct(inner_points):
+            return inner_points
         else:
             raise RuntimeError("Renderer: 벽을 제외한 내부 공간의 렌더링 좌표가 잘못 계산되었습니다.")
     
@@ -134,32 +135,34 @@ class Renderer:
     def draw_wall(self, row:int, col:int, dir:Direction = None):
         """row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함"""
         # 특정 방향을 지정하지 않았다면, 모든 방향에 대해 벽 렌더링 수행
-        anchor = self.find_anchor_pillar_pixel_pos(row, col)
+        pillar_anchor = self.find_pillar_anchor_point(row, col)
         match dir:
             case None:
                 for d in Direction:
                     self.draw_wall(row, col, d)
             case Direction.UP:
                 if self.maze.is_there_wall(row, col, Direction.UP): 
-                    self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
+                    self.maze_brush.rectangle(self.return_up_wall_points(pillar_anchor), fill = self.wall_color)
             case Direction.RIGHT:
                 if self.maze.is_there_wall(row, col, Direction.RIGHT): 
-                    self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
+                    self.maze_brush.rectangle(self.return_right_wall_points(pillar_anchor), fill = self.wall_color)
             case Direction.DOWN:
                 if self.maze.is_there_wall(row, col, Direction.DOWN): 
-                    self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
+                    self.maze_brush.rectangle(self.return_down_wall_points(pillar_anchor), fill = self.wall_color)
             case Direction.LEFT:
                 if self.maze.is_there_wall(row, col, Direction.LEFT): 
-                    self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
+                    self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor), fill = self.wall_color)
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
     
-    def draw_start_point(self, anchor:list):
-        points = self.return_inner_cell_points(anchor)
-        
+    # 시작지점에 빨간색 원을 그림. 반환값 없음
+    def draw_start_point(self, pillar_anchor:list, margin:int = 0):
+        """시작지점에 빨간색 원을 그림. 반환값 없음"""
+        points = self.return_inner_cell_points(pillar_anchor, margin=margin)
+        self.maze_brush.ellipse(points, fill = "red")
         
     # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. background 이미지 반환
-    def draw_maze(self, draw_start_cell:bool = None, start_row:int = None, start_col:int = None):
+    def draw_maze(self, draw_start_cell:bool = None, start_row:int = None, start_col:int = None, start_icon_margin:int = 0):
         """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
         - LCD 출력은 안함. 
         - background 이미지 반환"""
@@ -170,7 +173,7 @@ class Renderer:
             for col in range(maze_size):
                 self.draw_wall(row, col)
         if draw_start_cell:
-            self.maze_brush.ellipse(self.return_inner_cell_points(self.find_anchor_pillar_pixel_pos(start_row, start_col)), fill = "red")
+            self.draw_start_point(self.find_pillar_anchor_point(start_row, start_col), margin = start_icon_margin)
         return self.background
             
     
@@ -182,6 +185,10 @@ if __name__ == "__main__":
     from maze_braider import MazeBraider
     from lcd_controller import LCD
     
+    # 변경 가능한 상수
+    icon_margin = 4
+    
+    # -----------------------------------------------------
     maze_size = int(input("미로 크기 입력: "))
     maze = Maze(maze_size)
     start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
@@ -199,7 +206,7 @@ if __name__ == "__main__":
             print("MazeBraider: 막다른 길 제거 실패")
     
     maze_renderer = Renderer(maze)
-    maze_image = maze_renderer.draw_maze(draw_start_cell=True, start_row = start_row, start_col = start_col)
+    maze_image = maze_renderer.draw_maze(draw_start_cell=True, start_row = start_row, start_col = start_col, start_icon_margin = icon_margin)
     
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
     lcd_controller = LCD()
