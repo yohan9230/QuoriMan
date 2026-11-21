@@ -176,8 +176,7 @@ class Renderer:
         if draw_start_cell:
             self.draw_start_point(self.find_pillar_anchor_point(start_row, start_col), margin = start_icon_margin)
         return self.background
-            
-    
+
 # -----------------------------------------------------
 # LCD에 직접 미로를 띄움
 
