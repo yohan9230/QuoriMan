@@ -46,3 +46,22 @@ class JoystickObserver:
     
     def read_six_button(self):
         return self.is_pressed(self.six_button_pin)
+    
+# -----------------------------------------------------
+
+if __name__ == "__main__":
+    import time
+    
+    tmp_joystick = JoystickObserver()
+    
+    while True:
+        # 매 검사마다 0.1초씩 대기
+        time.sleep(0.1)
+        dir = tmp_joystick.read_dirction_from_joystick()
+        if dir != None:
+            print(dir.name)
+        if tmp_joystick.read_five_button():
+            print("5번 버튼 눌림")
+        if tmp_joystick.read_six_button():
+            print("6번 버튼 눌림. 테스트 종료")
+            break
