@@ -19,8 +19,11 @@ class Renderer:
     start_y:int
     background_color:tuple
     wall_color:tuple
+    maze:Maze
     
-    def __init__(self):
+    def __init__(self, maze:Maze):
+        self.maze = maze
+        
         # 상수
         # 화면 가로, 세로 크기(픽셀)
         self.screen_width = 240
@@ -44,8 +47,13 @@ class Renderer:
     
     # (row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환
     def find_anchor_pillar_pixel_pos(self, row:int, col:int):
-        """(row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 튜플로 반환"""
+        """(row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환"""
         return [self.start_x + self.cell_size*col, self.start_y + self.cell_size * row]
+    
+    # (row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환
+    def find_inner_anchor_pixel_pos(self, row:int, col:int):
+        """(row, col) 위치의 미로 칸의 벽 제외 내부 렌더링 기준점의 좌표를 리스트로 반환"""
+        return [self.start_x + self.cell_size*col + self.wall_thickness, self.start_y + self.cell_size * row + self.wall_thickness]
     
     # 불가능한 시작/끝 좌표가 없는지 확인하는 함수. 문제 없을시 True 반환
     def is_point_calculation_correct(self, points:list):
@@ -123,41 +131,76 @@ class Renderer:
             raise RuntimeError("Renderer: 벽을 제외한 내부 공간의 렌더링 좌표가 잘못 계산되었습니다.")
     
     # row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함
-    def draw_wall(self, maze:Maze, row:int, col:int, dir:Direction = None):
+    def draw_wall(self, row:int, col:int, dir:Direction = None):
         """row, col 칸에서 상/하/좌/우 벽을 렌더링 하는 함수. 벽 없으면 색칠 안함. 방향 지정시 해당 벽만 렌더링함"""
         # 특정 방향을 지정하지 않았다면, 모든 방향에 대해 벽 렌더링 수행
         anchor = self.find_anchor_pillar_pixel_pos(row, col)
         match dir:
             case None:
                 for d in Direction:
-                    self.draw_wall(maze, row, col, d)
+                    self.draw_wall(row, col, d)
             case Direction.UP:
-                if maze.is_there_wall(row, col, Direction.UP): 
+                if self.maze.is_there_wall(row, col, Direction.UP): 
                     self.maze_brush.rectangle(self.return_up_wall_points(anchor), fill = self.wall_color)
             case Direction.RIGHT:
-                if maze.is_there_wall(row, col, Direction.RIGHT): 
+                if self.maze.is_there_wall(row, col, Direction.RIGHT): 
                     self.maze_brush.rectangle(self.return_right_wall_points(anchor), fill = self.wall_color)
             case Direction.DOWN:
-                if maze.is_there_wall(row, col, Direction.DOWN): 
+                if self.maze.is_there_wall(row, col, Direction.DOWN): 
                     self.maze_brush.rectangle(self.return_down_wall_points(anchor), fill = self.wall_color)
             case Direction.LEFT:
-                if maze.is_there_wall(row, col, Direction.LEFT): 
+                if self.maze.is_there_wall(row, col, Direction.LEFT): 
                     self.maze_brush.rectangle(self.return_left_wall_points(anchor), fill = self.wall_color)
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
+    
+    def draw_start_point(self, anchor:list):
+        points = self.return_inner_cell_points(anchor)
+        
         
     # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. background 이미지 반환
-    def draw_maze(self, maze:Maze):
+    def draw_maze(self, draw_start_cell:bool = None, start_row:int = None, start_col:int = None):
         """- 최종적으로 모든 칸의 벽을 렌더링 하는 함수. 
         - LCD 출력은 안함. 
         - background 이미지 반환"""
         # 배경을 그리기 전, 기본 배경으로 초기화
         self.maze_brush.rectangle((0, 0, self.screen_width-1, self.screen_height-1), self.background_color)
-        maze_size = maze.maze_size
+        maze_size = self.maze.maze_size
         for row in range(maze_size):
             for col in range(maze_size):
-                self.draw_wall(maze, row, col)
+                self.draw_wall(row, col)
+        if draw_start_cell:
+            self.maze_brush.ellipse(self.return_inner_cell_points(self.find_anchor_pillar_pixel_pos(start_row, start_col)), fill = "red")
         return self.background
+            
     
 # -----------------------------------------------------
+# LCD에 직접 미로를 띄움
 
+if __name__ == "__main__":
+    from maze_generator import MazeGenerator
+    from maze_braider import MazeBraider
+    from lcd_controller import LCD
+    
+    maze_size = int(input("미로 크기 입력: "))
+    maze = Maze(maze_size)
+    start_row, start_col = map(int, input("시작 행, 열 번호 입력(1행 1열 부터 시작, 띄어쓰기로 구분): ").split())
+    start_row = start_row-1
+    start_col = start_col-1
+    maze_generator = MazeGenerator(start_row, start_col, maze)
+    if maze_generator.generate_maze():
+        print("MazeGenerator: 미로 생성 성공")
+    
+    maze_braider = MazeBraider(maze)
+    if maze_braider.braid_maze():
+        if maze_braider.check_there_is_no_dead_end():
+            print("MazeBraider: 막다른 길 제거 성공")
+        else:
+            print("MazeBraider: 막다른 길 제거 실패")
+    
+    maze_renderer = Renderer(maze)
+    maze_image = maze_renderer.draw_maze(draw_start_cell=True, start_row = start_row, start_col = start_col)
+    
+    # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
+    lcd_controller = LCD()
+    lcd_controller.show_the_image(maze_image)
