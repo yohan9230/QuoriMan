@@ -15,25 +15,27 @@ import time
 # 터미널 출력 여부(디버깅용)
 print_terminal_debuging = True
 
+# -----------------------------------------------------
 # 변경 가능한 상수
+
+## 미로 크기
 maze_size = 10
-player_icon_margin = 4
-start_icon_margin = 0
+## 처음 시작 시 플레이어가 바라보는 방향
 player_start_facing = Direction.UP
-stick_margin = 7
 
 ## 스테이지별로 드랍되는 재료(막대기) 개수 설정
 stick_num = 15
 
-# 렌더링 항목 그릴지 여부
+## 렌더링 항목 그릴지 여부
 draw_start_point_icon = False
 draw_player = True
 draw_stick = True
 
-# 렌더링 아이콘마다 여백 값
+## 렌더링 아이콘마다 여백 값
 start_point_icon_margin = 0
 player_icon_margin = 2
 stick_icon_margin = 7
+# -----------------------------------------------------
 
 def main():
     # -----------------------------------------------------
