@@ -117,9 +117,9 @@ def main():
                 # 터미널 디버깅 기능이 켜져있다면
                 if print_terminal_debuging:
                     # 턴수 출력
-                    terminal_debugger.print_turn_count
+                    terminal_debugger.print_turn_count()
                     # 플레이어의 막대기 수 출력
-                    terminal_debugger.print_player_stick_num
+                    terminal_debugger.print_player_stick_num()
         time.sleep(0.02)
     
 
