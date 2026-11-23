@@ -13,13 +13,24 @@ import random
 import time
 
 # 변경 가능한 상수
-start_icon_margin = 0
-player_icon_margin = 4
-player_start_facing = Direction.UP
 maze_size = 10
+player_icon_margin = 4
+start_icon_margin = 0
+player_start_facing = Direction.UP
+stick_margin = 7
 
 ## 스테이지별로 드랍되는 재료(막대기) 개수 설정
 stick_num = 15
+
+# 렌더링 항목 그릴지 여부
+draw_start_point_icon = False
+draw_player = True
+draw_stick = True
+
+# 렌더링 아이콘마다 여백 값
+start_point_icon_margin = 0
+player_icon_margin = 2
+stick_icon_margin = 7
 
 def main():
     # -----------------------------------------------------
@@ -47,12 +58,28 @@ def main():
     
     # 플레이어 생성
     player = Player(maze, start_row = player_start_row, start_col = player_start_col, facing = player_start_facing)
-    maze_renderer = Renderer(maze, player = player, player_margin = player_icon_margin, start_point_icon_margin = start_icon_margin)
     
     # 아이템 드롭퍼 객체 생성
     item_dropper = ItemDropper(stick_num, player, maze)
     # 막대기 위치 결정
     item_dropper.decide_stick_pos()
+
+    # 렌더링 객체 생성
+    maze_renderer = Renderer(
+        maze = maze, 
+        player = player, 
+        item_dropper=item_dropper)
+    # 각 아이콘별로 그릴지 여부를 설정
+    maze_renderer.set_rendering_icons(
+        draw_start_point_icon = draw_start_point_icon, 
+        draw_player = draw_player, 
+        draw_stick = draw_stick)
+    # 각 아이콘별 여백 설정
+    maze_renderer.set_rendering_icons_margin(
+        start_point_icon_margin = start_point_icon_margin,
+        player_icon_margin = player_icon_margin,
+        stick_icon_margin = stick_icon_margin
+    )
     
     # 미로 이미지 만들기
     maze_image = maze_renderer.draw_maze()
@@ -81,8 +108,13 @@ def main():
                 maze_image = maze_renderer.draw_maze()
                 # 재 렌더링한 미로를 LCD로 출력함
                 lcd_controller.show_the_image(maze_image)
+                
+                # 터미널에 현재 턴수를 출력함.
                 print("현재 턴수: ", end = "")
                 print(current_turn)
+                # 터미널에 현재 막대기 개수를 출력함
+                print("현재 막대기 개수: ", end = "")
+                print(player.stick_num)
             
         time.sleep(0.02)
     
