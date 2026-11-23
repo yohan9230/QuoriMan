@@ -18,7 +18,6 @@ class ItemDropper:
         
         # 막대기 위치를 정함
         self.stick_points = None
-        self.decide_stick_pos()
 
     # 플레이어 시작 위치를 제외한 아이템(막대기 등) 드랍 후보 위치를 저장하는 함수
     def find_item_pos_candidate(self):

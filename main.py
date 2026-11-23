@@ -49,7 +49,10 @@ def main():
     player = Player(maze, start_row = player_start_row, start_col = player_start_col, facing = player_start_facing)
     maze_renderer = Renderer(maze, player = player, player_margin = player_icon_margin, start_point_icon_margin = start_icon_margin)
     
+    # 아이템 드롭퍼 객체 생성
     item_dropper = ItemDropper(stick_num, player, maze)
+    # 막대기 위치 결정
+    item_dropper.decide_stick_pos()
     
     # 미로 이미지 만들기
     maze_image = maze_renderer.draw_maze()
