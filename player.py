@@ -3,10 +3,14 @@
 from maze import Maze, Direction
 
 class Player:
+    maze:Maze
+    
     current_row:int
     current_col:int
     facing:Direction
-    maze:Maze
+    
+    stick_num:int
+    
     def __init__(self, maze:Maze, start_row:int = 0, start_col:int = 0, facing:Direction = Direction.UP):
         # 플레이어가 속한 미로 객체를 받음
         self.maze = maze
@@ -16,6 +20,9 @@ class Player:
         
         # 플레이어가 현재 바라보고 있는 방향을 저장함
         self.facing = facing
+        
+        # 플레이어가 가진 막대기 수 초기화
+        self.stick_num = 0
     
     # 플레이어의 위치를 변경하는 함수
     def move(self, dir:Direction):
