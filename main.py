@@ -11,6 +11,7 @@ from input_observer import InputObserver
 
 import random
 import time
+
 # 터미널 출력 여부(디버깅용)
 print_terminal_debuging = True
 
@@ -80,6 +81,10 @@ def main():
         stick_icon_margin = stick_icon_margin
     )
     
+    # 터미널 디버깅 기능이 켜져있다면 import
+    if print_terminal_debuging:
+        from terminal_debugger import TerminalDebugger
+        terminal_debugger = TerminalDebugger(maze = maze, player = player)
     
     # 미로 이미지 만들기
     maze_image = maze_renderer.draw_maze()
@@ -94,7 +99,7 @@ def main():
     
     # -----------------------------------------------------
     
-    current_turn = 0
+    maze.turn = 0
     while True:
         # 조이스틱의 움직임이 감지되면(방향 변경이 감지되면)
         if signal_observer.check_direction_changed():
@@ -103,18 +108,18 @@ def main():
                 # 움직이고 나서, 막대기가 있다면 플레이어 막대기 카운트 + 1
                 if item_dropper.remove_stick():
                     player.stick_num += 1
-                current_turn += 1
+                maze.turn += 1
                 # 플레이어 이동하는 것으로 미로를 재 렌더링함
                 maze_image = maze_renderer.draw_maze()
                 # 재 렌더링한 미로를 LCD로 출력함
                 lcd_controller.show_the_image(maze_image)
                 
-                # 터미널에 현재 턴수를 출력함.
-                print("현재 턴수: ", end = "")
-                print(current_turn)
-                # 터미널에 현재 막대기 개수를 출력함
-                print("현재 막대기 개수: ", end = "")
-                print(player.stick_num)
+                # 터미널 디버깅 기능이 켜져있다면
+                if print_terminal_debuging:
+                    # 턴수 출력
+                    terminal_debugger.print_turn_count
+                    # 플레이어의 막대기 수 출력
+                    terminal_debugger.print_player_stick_num
         time.sleep(0.02)
     
 

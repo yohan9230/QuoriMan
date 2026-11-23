@@ -41,6 +41,8 @@ class Maze:
         self.start_row = None
         self.start_col = None
         
+        self.turn = 0
+        
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
 
@@ -180,7 +182,7 @@ class Maze:
     def count_wall(self, row:int, col:int, discard_outline:bool = False):
         """현 위치에서 벽 개수를 반환하는 함수"""
         return len(self.find_wall(row, col, discard_outline))
-        
+
 
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
