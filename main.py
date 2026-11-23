@@ -11,6 +11,8 @@ from input_observer import InputObserver
 
 import random
 import time
+# 터미널 출력 여부(디버깅용)
+print_terminal_debuging = True
 
 # 변경 가능한 상수
 maze_size = 10
@@ -39,22 +41,19 @@ def main():
     # 미로 시작 위치 랜덤으로 정해짐
     maze_start_row = random.randint(0,maze_size-1)
     maze_start_col = random.randint(0,maze_size-1)
-    maze_generator = MazeGenerator(maze = maze, start_row = maze_start_row, start_col = maze_start_col)
     
     # 플레이어 시작 위치 랜덤으로 정해짐
     # 나중에 스폰 위치를 테두리 부분으로 고정 필요
     player_start_row = random.randint(0,maze_size-1)
     player_start_col = random.randint(0,maze_size-1)
     
-    if maze_generator.generate_maze():
-        print("MazeGenerator: 미로 생성 성공")
+    # 미로 생성
+    maze_generator = MazeGenerator(maze = maze, start_row = maze_start_row, start_col = maze_start_col)
+    maze_generator.generate_maze()
     
+    # 막다른 길 제거
     maze_braider = MazeBraider(maze)
-    if maze_braider.braid_maze():
-        if maze_braider.check_there_is_no_dead_end():
-            print("MazeBraider: 막다른 길 제거 성공")
-        else:
-            print("MazeBraider: 막다른 길 제거 실패")
+    maze_braider.braid_maze()
     
     # 플레이어 생성
     player = Player(maze, start_row = player_start_row, start_col = player_start_col, facing = player_start_facing)
@@ -80,6 +79,7 @@ def main():
         player_icon_margin = player_icon_margin,
         stick_icon_margin = stick_icon_margin
     )
+    
     
     # 미로 이미지 만들기
     maze_image = maze_renderer.draw_maze()
@@ -115,10 +115,8 @@ def main():
                 # 터미널에 현재 막대기 개수를 출력함
                 print("현재 막대기 개수: ", end = "")
                 print(player.stick_num)
-            
         time.sleep(0.02)
     
-
 
 if __name__ == "__main__":
     main()
