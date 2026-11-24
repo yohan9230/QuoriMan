@@ -9,7 +9,6 @@ from lcd_controller import LCD
 from renderer import Renderer
 from input_observer import InputObserver
 
-import random
 import time
 
 # 터미널 출력 여부(디버깅용)
@@ -39,70 +38,93 @@ stick_icon_margin = 7
 exit_icon_margin = 0
 # -----------------------------------------------------
 
+# maze를 초기화 하는 함수
+def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze_bradier:MazeBraider, item_dropper:ItemDropper, maze_renderer:Renderer, first_using:bool):
+    """- 기존 maze 객체를 격자수준부터 다시 만듬.
+    - 플레이어 시작 위치, 막대기 위치 등등 모두 초기화
+    - 플레이어 객체는 건들지 않음"""
+    # 이번 스테이지의 턴수를 0으로 초기화함
+    maze.turn = 0
+    # 플레이어와 출구의 시작 위치 랜덤으로 정해짐(플레이어와 출구의 위치는 항상 정 반대편 면임)
+    maze.place_player_and_exit()
+    # 미로 생성
+    maze_generator.generate_maze()
+    
+    # 막다른 길을 찾고, 해당 막다른 길의 벽 방향을 리스트로 저장함
+    maze_bradier.find_end_pos_and_wall_dir()
+    # 막다른 길 후보를 섞음
+    maze_bradier.shuffle_dir_list()
+    
+    # 막다른 길 제거
+    maze_bradier.braid_maze()
+    # 플레이어의 시작 위치에 플레이어를 둠
+    player.stand_player_start_point(maze.player_start_point)
+    # 막대기 위치 결정
+    item_dropper.decide_stick_pos()
+    
+    if first_using:
+        # 각 아이콘별로 그릴지 여부를 설정
+        maze_renderer.set_rendering_icons(
+            draw_start_point_icon = draw_start_point_icon, 
+            draw_player = draw_player, 
+            draw_stick = draw_stick,
+            draw_exit = draw_exit)
+        # 각 아이콘별 여백 설정
+        maze_renderer.set_rendering_icons_margin(
+            start_point_icon_margin = start_point_icon_margin,
+            player_icon_margin = player_icon_margin,
+            stick_icon_margin = stick_icon_margin,
+            exit_icon_margin = exit_icon_margin
+        )
+
+# 미로 이미지를 새로고침 및 LCD에 출력. 플레이어, 막대기 등 모든 객체 포함
+def refresh_maze_image(maze_renderer:Renderer, lcd_controller:LCD):
+    """미로 이미지를 새로고침 및 LCD에 출력함. 플레이어, 막대기 등 모든 객체 포함"""
+    # 미로 이미지 만들기
+    maze_image = maze_renderer.draw_maze()
+    # 첫 화면 내보내기
+    lcd_controller.show_the_image(maze_image)
+
 def main():
     # -----------------------------------------------------
     maze = Maze(maze_size)
-    # 미로 시작 위치 랜덤으로 정해짐
-    maze_start_row = random.randint(0,maze_size-1)
-    maze_start_col = random.randint(0,maze_size-1)
-    
-    # 플레이어와 출구의 시작 위치 랜덤으로 정해짐(플레이어와 출구의 위치는 항상 정 반대편 면임)
-    maze.place_player_and_exit()
-    
-    # 미로 생성
-    maze_generator = MazeGenerator(maze = maze, start_row = maze_start_row, start_col = maze_start_col)
-    maze_generator.generate_maze()
-    
-    # 막다른 길 제거
+    maze_generator = MazeGenerator(maze = maze)
     maze_braider = MazeBraider(maze)
-    maze_braider.braid_maze()
     
-    # 플레이어 생성
+    # 플레이어 객체 생성
     player = Player(maze, facing = player_start_facing)
     
     # 아이템 드롭퍼 객체 생성
     item_dropper = ItemDropper(stick_num, player, maze)
-    # 막대기 위치 결정
-    item_dropper.decide_stick_pos()
 
     # 렌더링 객체 생성
-    maze_renderer = Renderer(
+    maze_renderer = Renderer(maze = maze, player = player, item_dropper=item_dropper)
+
+    # 미로 최초초기화
+    initialize_maze(
         maze = maze, 
-        player = player, 
-        item_dropper=item_dropper)
-    # 각 아이콘별로 그릴지 여부를 설정
-    maze_renderer.set_rendering_icons(
-        draw_start_point_icon = draw_start_point_icon, 
-        draw_player = draw_player, 
-        draw_stick = draw_stick,
-        draw_exit = draw_exit)
-    # 각 아이콘별 여백 설정
-    maze_renderer.set_rendering_icons_margin(
-        start_point_icon_margin = start_point_icon_margin,
-        player_icon_margin = player_icon_margin,
-        stick_icon_margin = stick_icon_margin,
-        exit_icon_margin = exit_icon_margin
-    )
+        player = player,
+        maze_generator = maze_generator, 
+        maze_bradier = maze_braider, 
+        item_dropper = item_dropper, 
+        maze_renderer = maze_renderer,
+        first_using = True)
     
-    # 터미널 디버깅 기능이 켜져있다면 import
+    # 터미널 디버깅 기능이 켜져있다면 import 및 객체 생성
     if print_terminal_debuging:
         from terminal_debugger import TerminalDebugger
         terminal_debugger = TerminalDebugger(maze = maze, player = player)
     
-    # 미로 이미지 만들기
-    maze_image = maze_renderer.draw_maze()
-    
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
     lcd_controller = LCD()
-    # 첫 화면 내보내기
-    lcd_controller.show_the_image(maze_image)
     
     # 라즈베리 파이의 입력 신호를 받는 객체 생성
     signal_observer = InputObserver()
     
-    # -----------------------------------------------------
+    # 미로 이미지를 새로고침 및 LCD에 출력함
+    refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
     
-    maze.turn = 0
+    # -----------------------------------------------------
     
     if print_terminal_debuging:
         terminal_debugger.print_stage_num()
@@ -137,7 +159,6 @@ def main():
                     break
                 
         time.sleep(0.02)
-    
 
 if __name__ == "__main__":
     main()

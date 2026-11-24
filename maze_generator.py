@@ -11,16 +11,11 @@ class MazeGenerator():
     current_col:int
     maze:Maze
     
-    def __init__(self, maze:Maze, start_row:int = 0, start_col:int = 0):
-        if maze.out_of_maze(start_row, start_col):
-            raise ValueError("MazeGenerator: 시작 위치가 잘못되었습니다.")
-        self.current_row = start_row
-        self.current_col = start_col
-        
+    def __init__(self, maze:Maze):
         # 미로 객체에 미로 관련 속성 저장
         self.maze = maze
-        self.maze.start_row = start_row
-        self.maze.start_col = start_col
+        # 미로의 시작 위치를 설정함
+        self._decide_maze_start_point()
         
         # 방문 여부를 표현하는 2차원 bool 기반 리스트
         self.visited = []
@@ -28,9 +23,18 @@ class MazeGenerator():
         self.visitied_pos_stack = []
         self.make_visitied()
         # 시작 위치를 방문 처리
-        self.visited[start_row][start_col] = True
+        self.visited[self.maze.start_row][self.maze.start_col] = True
         # 사직 위치 스택에 넣기
-        self.visitied_pos_stack.append([start_row, start_col])
+        self.visitied_pos_stack.append([self.maze.start_row, self.maze.start_col])
+        
+    # 랜덤한 위치를 미로 생성의 시작으로 설정함
+    def _decide_maze_start_point(self):
+        """랜덤한 위치를 미로 생성의 시작으로 설정함"""
+        self.maze.start_row = random.randint(0,self.maze.maze_size-1)
+        self.current_row = self.maze.start_row
+        self.maze.start_col = random.randint(0,self.maze.maze_size-1)
+        self.current_col = self.maze.start_col
+        return (self.maze.start_row, self.maze.start_col)
     
     # 방문한 곳을 표시하는 2차원 리스트를 생성하는 함수
     def make_visitied(self):

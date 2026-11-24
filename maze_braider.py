@@ -39,7 +39,7 @@ class MazeBraider:
                     self.dead_end_pos.append([row, col])
                     # 막다른 길에서 외벽 제외한 벽 방향 저장
                     self.dead_end_dir.append(self.maze.find_wall(row, col, True))
-    
+
     # 방향 리스트를 섞는 함수
     def shuffle_dir_list(self):
         """- 방향 리스트를 섞는 함수
