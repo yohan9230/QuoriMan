@@ -198,11 +198,11 @@ class Maze:
     # 미로의 출구와 플레이어의 위치를 결정하는 함수
     def place_player_and_exit(self):
         # 플레이어가 놓일 미로의 벽면 방향 결정
-        self.player_start_point_side_dir = random.randint(Direction.UP, Direction.LEFT)
+        self.player_start_point_side_dir = Direction(random.randint(Direction.UP, Direction.LEFT))
         player_random_value = random.randint(0, self.maze_size-1)
         exit_random_value = random.randint(0, self.maze_size-1)
         match self.player_start_point_side_dir:
-            # 플레이어가 위쪽 벽에서 스폰되도록 결정되었다면
+            # 플레이어의 스폰 벽 방향 반대편에 출구 위치를 결정함
             case Direction.UP:
                 # (0, random)위치에 플레이어 시작 위치
                 self.player_start_point = (0, player_random_value)
@@ -219,7 +219,10 @@ class Maze:
                 # (0, random)
                 self.exit_point = (0, exit_random_value)
             case Direction.LEFT:
-                
+                # (random, 0)
+                self.player_start_point = (player_random_value, 0)
+                # (random, maze_size-1)
+                self.exit_point = (exit_random_value, self.maze_size - 1)
         self.exit_point_side_dir = (self.player_start_point_side_dir + 2) % 4
                 
         
