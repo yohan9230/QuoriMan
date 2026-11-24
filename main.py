@@ -103,6 +103,10 @@ def main():
     # -----------------------------------------------------
     
     maze.turn = 0
+    
+    if print_terminal_debuging:
+        terminal_debugger.print_stage_num()
+    
     while True:
         # 조이스틱의 움직임이 감지되면(방향 변경이 감지되면)
         if signal_observer.check_direction_changed():
@@ -124,6 +128,8 @@ def main():
                     terminal_debugger.print_turn_count()
                     # 플레이어의 막대기 수 출력
                     terminal_debugger.print_player_stick_num()
+                    # 플레이어의 점수 출력
+                    terminal_debugger.print_player_score()
                 
                 # 플레이어가 출구에 도착하면 움직임 감지를 중지함
                 if player.is_player_arrived_exit():
