@@ -15,14 +15,17 @@ class Player:
         # 플레이어가 속한 미로 객체를 받음
         self.maze = maze
         # 플레이어의 위치를 저장하는 변수들
-        self.current_row = self.maze.player_start_point[0]
-        self.current_col = self.maze.player_start_point[1]
+        self.current_row:int = self.maze.player_start_point[0]
+        self.current_col:int = self.maze.player_start_point[1]
         
         # 플레이어가 현재 바라보고 있는 방향을 저장함
         self.facing = facing
         
         # 플레이어가 가진 막대기 수 초기화
         self.stick_num = 0
+        
+        # 플레이어 점수
+        self.score = 0
     
     # 플레이어의 위치를 변경하는 함수
     def move(self, dir:Direction):
@@ -37,6 +40,13 @@ class Player:
             self.current_col += self.maze.DIR_COL[dir]
             self.facing = dir
             return True
+    
+    # 플레이어가 출구에 도착했는지 확인하는 함수
+    def is_player_arrived_exit(self):
+        """- 플레이어가 출구에 도착했는지 확인하는 함수
+        - 도착했으면 True, 아직 도착 안했으면 False 반환"""
+        return (self.current_row, self.current_col) == self.maze.exit_point
+        
         
 # -----------------------------------------------------
 

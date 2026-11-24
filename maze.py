@@ -43,7 +43,9 @@ class Maze:
         self.start_col = None
         
         # 현재 턴 수
-        self.turn = 0
+        self.turn:int = 0
+        # 현재 스테이지 번호
+        self.stage:int = 1
         
         # 플레이어 시작 위치의 면 방향
         self.player_start_point_side_dir:Direction = None

@@ -111,6 +111,7 @@ def main():
                 # 움직이고 나서, 막대기가 있다면 플레이어 막대기 카운트 + 1
                 if item_dropper.remove_stick():
                     player.stick_num += 1
+                    player.score += 1
                 maze.turn += 1
                 # 플레이어 이동하는 것으로 미로를 재 렌더링함
                 maze_image = maze_renderer.draw_maze()
@@ -123,6 +124,12 @@ def main():
                     terminal_debugger.print_turn_count()
                     # 플레이어의 막대기 수 출력
                     terminal_debugger.print_player_stick_num()
+                
+                # 플레이어가 출구에 도착하면 움직임 감지를 중지함
+                if player.is_player_arrived_exit():
+                    maze.stage += 1
+                    break
+                
         time.sleep(0.02)
     
 
