@@ -18,15 +18,29 @@ class ItemDropper:
         
         # 막대기 위치를 정함
         self.stick_points = None
+        
+        # 막대기 등 아이템이 드랍될 수 없는 위치를 저장한 집합
+        self.exception_points = set()
 
-    # 플레이어 시작 위치를 제외한 아이템(막대기 등) 드랍 후보 위치를 저장하는 함수
+    # 아이템이 드랍될 수 없는 곳을 미리 찾아두는 함수(튜플 좌표로 된 집합 반환)
+    def find_drop_exception_points(self):
+        """아이템이 드랍될 수 없는 곳을 미리 찾아두는 함수(튜플 좌표로 된 집합 반환)"""
+        # 이전 스테이지에서 남아있던 값을 초기화
+        self.exception_points = set()
+        # 플레이어 시작 위치는 아이템 드랍 위치에서 제외
+        self.exception_points.add((self.player.current_row, self.player.current_col))
+        # 출구 위치도 아이템 드랍 위치에서 제외
+        self.exception_points.add(self.maze.exit_point)
+    
+    # 플레이어 시작 위치 및 출구 위치를 제외한 아이템(막대기 등) 드랍 후보 위치를 저장하는 함수
     def find_item_pos_candidate(self):
-        """플레이어 시작 위치를 제외한 아이템(막대기) 드랍 후보 위치를 저장하는 함수"""
+        """플레이어 시작 위치 및 출구 위치를 제외한 아이템(막대기) 드랍 후보 위치를 저장하는 함수"""
         points = []
+        self.find_drop_exception_points()
         for row in range(self.maze.maze_size):
             for col in range(self.maze.maze_size):
-                # 플레이어 시작 위치는 막대기 드랍 후보에서 제외
-                if self.player.current_row == row and self.player.current_col == col:
+                # 플레이어 시작 위치 혹은 출구 위치는 막대기 드랍 후보에서 제외
+                if (row,col) in self.exception_points:
                     continue
                 points.append((row, col))
         return points

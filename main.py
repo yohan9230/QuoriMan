@@ -30,11 +30,13 @@ stick_num = 15
 draw_start_point_icon = False
 draw_player = True
 draw_stick = True
+draw_exit = True
 
 ## 렌더링 아이콘마다 여백 값
 start_point_icon_margin = 0
 player_icon_margin = 2
 stick_icon_margin = 7
+exit_icon_margin = 0
 # -----------------------------------------------------
 
 def main():
@@ -72,12 +74,14 @@ def main():
     maze_renderer.set_rendering_icons(
         draw_start_point_icon = draw_start_point_icon, 
         draw_player = draw_player, 
-        draw_stick = draw_stick)
+        draw_stick = draw_stick,
+        draw_exit = draw_exit)
     # 각 아이콘별 여백 설정
     maze_renderer.set_rendering_icons_margin(
         start_point_icon_margin = start_point_icon_margin,
         player_icon_margin = player_icon_margin,
-        stick_icon_margin = stick_icon_margin
+        stick_icon_margin = stick_icon_margin,
+        exit_icon_margin = exit_icon_margin
     )
     
     # 터미널 디버깅 기능이 켜져있다면 import

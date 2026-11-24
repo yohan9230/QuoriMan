@@ -52,14 +52,13 @@ class Renderer:
         self.start_point_icon:bool = False
         self.player_icon:bool = False
         self.stick_icon:bool = False
+        self.exit_icon:bool = False
         
         # 여백
-        # 벽과 플레이어 렌더링 사이 여백
         self.player_icon_margin:int = None
-        # 시작지점 표시용 렌더링과 벽 사이 여백
         self.start_point_icon_margin:int = None
-        # 벽과 막대기 사이 여백
         self.stick_icon_margin:int = None
+        self.exit_icon_margin:int = None
         
         # 미로 그림 시작 지점. 모든 그림의 시작지점은 왼쪽 상단으로 고정
         self.start_x = 10
@@ -184,9 +183,10 @@ class Renderer:
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
     
-    # 시작지점에 파란색 사각형을 그림. 반환값 없음
-    def draw_start_point_icon(self, pillar_anchor:list):
-        """시작지점에 파란색 사각형을 그림. 반환값 없음"""
+    # 미로 생성 시작지점에 파란색 사각형을 그림. 반환값 없음
+    def _draw_start_point_icon(self):
+        """미로 생성 시작지점에 파란색 사각형을 그림. 반환값 없음"""
+        pillar_anchor = self.find_pillar_anchor_point(self.maze.start_row, self.maze.start_col)
         points = self.return_inner_cell_points(pillar_anchor, margin=self.start_point_icon_margin)
         self.maze_brush.rectangle(points, fill = "blue")
         
@@ -201,30 +201,34 @@ class Renderer:
         for row in range(maze_size):
             for col in range(maze_size):
                 self.draw_wall(row, col)
-        if self.start_point_icon: self.draw_start_point_icon(self.find_pillar_anchor_point(self.maze.start_row, self.maze.start_col))
-        if self.player_icon: self.draw_player()
-        if self.stick_icon: self.draw_stick()
+        # 그리는 순서: 시작 지점 -> 출구 -> 막대기 -> 플레이어
+        if self.start_point_icon: self._draw_start_point_icon()
+        if self.exit_icon: self._draw_exit()
+        if self.stick_icon: self._draw_stick()
+        if self.player_icon: self._draw_player()
         return self.maze_image
 
     # 각 렌더링 객체를 그릴지 설정하는 함수
-    def set_rendering_icons(self, draw_start_point_icon:bool, draw_player:bool, draw_stick:bool):
+    def set_rendering_icons(self, draw_start_point_icon:bool, draw_player:bool, draw_stick:bool, draw_exit:bool):
         """각 렌더링 객체를 그릴지 설정하는 함수"""
         self.start_point_icon = draw_start_point_icon
         self.player_icon = draw_player
         self.stick_icon = draw_stick
+        self.exit_icon = draw_exit
     
     # 각 렌더링 해야하는 객체의 여백을 설정하는 함수
-    def set_rendering_icons_margin(self, start_point_icon_margin:int, player_icon_margin:int, stick_icon_margin:int):
+    def set_rendering_icons_margin(self, start_point_icon_margin:int, player_icon_margin:int, stick_icon_margin:int, exit_icon_margin:int):
         """각 렌더링 해야하는 객체의 여백을 설정하는 함수"""
         self.start_point_icon_margin = start_point_icon_margin
         self.player_icon_margin = player_icon_margin
         self.stick_icon_margin = stick_icon_margin
+        self.exit_icon_margin = exit_icon_margin
     
 
     # -----------------------------------------------------
 
     # 플레이어를 렌더링 하는 함수
-    def draw_player(self):
+    def _draw_player(self):
         """플레이어를 렌더링 하는 함수"""
         pillar_anchor_point = self.find_pillar_anchor_point(self.player.current_row, self.player.current_col)
         inner_points = self.return_inner_cell_points(pillar_anchor_point, margin = self.player_icon_margin)
@@ -233,13 +237,13 @@ class Renderer:
     # -----------------------------------------------------
     
     # tuple(row, col)에서 막대기를 렌더링 하는 함수. 혹은 모든 막대기를 렌더링 함
-    def draw_stick(self, pos:tuple = None):
+    def _draw_stick(self, pos:tuple = None):
         """막대기를 렌더링 하는 함수"""
         if pos == None:
             if self.item_dropper.stick_points == None:
                 raise RuntimeError("Renderer: ItemDropper: 막대기 위치를 전달받지 못해 막대기를 렌더링 할 수 없습니다.")
             for point in self.item_dropper.stick_points:
-                self.draw_stick(point)
+                self._draw_stick(point)
         else:
             (row, col) = pos
             if not (type(row) == int and type(col) == int):
@@ -247,7 +251,16 @@ class Renderer:
             pillar_anchor = self.find_pillar_anchor_point(row, col)
             inner_points = self.return_inner_cell_points(pillar_anchor = pillar_anchor, margin = self.stick_icon_margin)
             self.maze_brush.ellipse(inner_points, fill = "brown")
-        
+    
+    # -----------------------------------------------------
+    
+    # 출구를 렌더링 하는 함수.
+    def _draw_exit(self):
+        """출구를 렌더링 하는 함수"""
+        point = self.maze.exit_point
+        pillar_anchor = self.find_pillar_anchor_point(point[0], point[1])
+        inner_points = self.return_inner_cell_points(pillar_anchor = pillar_anchor, margin = self.exit_icon_margin)
+        self.maze_brush.rectangle(inner_points, fill = "green")
 
 # -----------------------------------------------------
 # LCD에 직접 미로를 띄움
@@ -282,8 +295,8 @@ if __name__ == "__main__":
     item_dropper.decide_stick_pos(stick_num)
     
     maze_renderer = Renderer(maze = maze, player = player, item_dropper = item_dropper)
-    maze_renderer.set_rendering_icons(draw_start_point_icon=True, draw_player=True, draw_stick=True)
-    maze_renderer.set_rendering_icons_margin(start_point_icon_margin = 0, player_icon_margin = 2, stick_icon_margin = 7)
+    maze_renderer.set_rendering_icons(draw_start_point_icon=True, draw_player=True, draw_stick=True, draw_exit = True)
+    maze_renderer.set_rendering_icons_margin(start_point_icon_margin = 0, player_icon_margin = 2, stick_icon_margin = 7, exit_icon_margin = 0)
     maze_image = maze_renderer.draw_maze()
     
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
