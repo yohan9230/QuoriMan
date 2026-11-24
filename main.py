@@ -40,15 +40,12 @@ stick_icon_margin = 7
 def main():
     # -----------------------------------------------------
     maze = Maze(maze_size)
-    
     # 미로 시작 위치 랜덤으로 정해짐
     maze_start_row = random.randint(0,maze_size-1)
     maze_start_col = random.randint(0,maze_size-1)
     
-    # 플레이어 시작 위치 랜덤으로 정해짐
-    # 나중에 스폰 위치를 테두리 부분으로 고정 필요
-    player_start_row = random.randint(0,maze_size-1)
-    player_start_col = random.randint(0,maze_size-1)
+    # 플레이어와 출구의 시작 위치 랜덤으로 정해짐(플레이어와 출구의 위치는 항상 정 반대편 면임)
+    maze.place_player_and_exit()
     
     # 미로 생성
     maze_generator = MazeGenerator(maze = maze, start_row = maze_start_row, start_col = maze_start_col)
