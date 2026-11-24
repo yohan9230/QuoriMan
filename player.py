@@ -11,12 +11,12 @@ class Player:
     
     stick_num:int
     
-    def __init__(self, maze:Maze, start_row:int = 0, start_col:int = 0, facing:Direction = Direction.UP):
+    def __init__(self, maze:Maze, facing:Direction = Direction.UP):
         # 플레이어가 속한 미로 객체를 받음
         self.maze = maze
         # 플레이어의 위치를 저장하는 변수들
-        self.current_row = start_row
-        self.current_col = start_col
+        self.current_row = self.maze.player_start_point[0]
+        self.current_col = self.maze.player_start_point[1]
         
         # 플레이어가 현재 바라보고 있는 방향을 저장함
         self.facing = facing

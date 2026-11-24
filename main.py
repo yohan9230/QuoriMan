@@ -56,7 +56,7 @@ def main():
     maze_braider.braid_maze()
     
     # 플레이어 생성
-    player = Player(maze, start_row = player_start_row, start_col = player_start_col, facing = player_start_facing)
+    player = Player(maze, facing = player_start_facing)
     
     # 아이템 드롭퍼 객체 생성
     item_dropper = ItemDropper(stick_num, player, maze)
