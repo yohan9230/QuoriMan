@@ -1,5 +1,6 @@
 # 미로의 기본 틀을 만드는 소스 파일. n * n 격자를 생성함.
 from enum import IntEnum
+import random
 
 # 방향
 class Direction(IntEnum):
@@ -41,8 +42,19 @@ class Maze:
         self.start_row = None
         self.start_col = None
         
+        # 현재 턴 수
         self.turn = 0
         
+        # 플레이어 시작 위치의 면 방향
+        self.player_start_point_side_dir:Direction = None
+        # 플레이어의 시작 위치
+        self.player_start_point:tuple = None
+        # 미로 출구 위치이 면 방향
+        self.exit_point_side_dir:Direction = None
+        # 미로의 출구 위치
+        self.exit_point:tuple = None
+        
+                
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
 
@@ -183,6 +195,34 @@ class Maze:
         """현 위치에서 벽 개수를 반환하는 함수"""
         return len(self.find_wall(row, col, discard_outline))
 
+    # 미로의 출구와 플레이어의 위치를 결정하는 함수
+    def place_player_and_exit(self):
+        # 플레이어가 놓일 미로의 벽면 방향 결정
+        self.player_start_point_side_dir = random.randint(Direction.UP, Direction.LEFT)
+        player_random_value = random.randint(0, self.maze_size-1)
+        exit_random_value = random.randint(0, self.maze_size-1)
+        match self.player_start_point_side_dir:
+            # 플레이어가 위쪽 벽에서 스폰되도록 결정되었다면
+            case Direction.UP:
+                # (0, random)위치에 플레이어 시작 위치
+                self.player_start_point = (0, player_random_value)
+                # (maze_size-1, random)위치에 출구 위치
+                self.exit_point = (self.maze_size - 1, exit_random_value)
+            case Direction.RIGHT:
+                # (random, maze_size-1)
+                self.player_start_point = (player_random_value, self.maze_size - 1)
+                # (random, 0)
+                self.exit_point = (exit_random_value, 0)
+            case Direction.DOWN:
+                # (maze_size-1, random)
+                self.player_start_point = (self.maze_size - 1, player_random_value)
+                # (0, random)
+                self.exit_point = (0, exit_random_value)
+            case Direction.LEFT:
+                
+        self.exit_point_side_dir = (self.player_start_point_side_dir + 2) % 4
+                
+        
 
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
