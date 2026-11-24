@@ -61,6 +61,7 @@ if __name__ == "__main__":
         else:
             print("MazeBraider: 막다른 길 제거 실패")
 
+    maze.place_player_and_exit()
     player = Player(maze = maze)
     
     while True:

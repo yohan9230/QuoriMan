@@ -257,10 +257,6 @@ if __name__ == "__main__":
     from maze_braider import MazeBraider
     from lcd_controller import LCD
     
-    # 변경 가능한 상수
-    start_icon_margin = 0
-    player_icon_margin = 4
-    
     stick_num = 1
     
     # -----------------------------------------------------
@@ -278,12 +274,17 @@ if __name__ == "__main__":
         else:
             print("MazeBraider: 막다른 길 제거 실패")
     
-    player = Player(maze = maze, start_row = start_row, start_col = start_col)
+    maze.place_player_and_exit()
     
-    item_dropper = ItemDropper(stick_num = stick_num, player = player, maze = maze)
+    player = Player(maze = maze)
+    
+    item_dropper = ItemDropper(stage_stick_num = stick_num, player = player, maze = maze)
+    item_dropper.decide_stick_pos(stick_num)
     
     maze_renderer = Renderer(maze = maze, player = player, item_dropper = item_dropper)
-    maze_image = maze_renderer.draw_maze(draw_start_point_icon = True)
+    maze_renderer.set_rendering_icons(draw_start_point_icon=True, draw_player=True, draw_stick=True)
+    maze_renderer.set_rendering_icons_margin(start_point_icon_margin = 0, player_icon_margin = 2, stick_icon_margin = 7)
+    maze_image = maze_renderer.draw_maze()
     
     # 렌더링한 이미지를 LCD에 출력하기 위한 LCD 객체 생성
     lcd_controller = LCD()
