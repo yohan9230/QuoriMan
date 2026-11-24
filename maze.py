@@ -69,14 +69,6 @@ class Maze:
                 row.append(True)
             self._horizontal_wall_list.append(row)
 
-    ## 수평 벽 정보 출력 함수
-    def print_horizontal_wall_list(self):
-        """수평 벽 리스트 출력 함수"""
-        for i in range(self.maze_size+1):
-            for j in range(self.maze_size):
-                print(self._horizontal_wall_list[i][j], end = " ")
-            print("")
-
     ## 수직 벽 정보 리스트 만드는 함수
     def make_vertical_wall_list(self):
         """수직 벽 존재 여부 정보 담는 2차원 리스트"""
@@ -85,6 +77,14 @@ class Maze:
             for j in range(self.maze_size+1):
                 row.append(True)
             self._vertical_wall_list.append(row)
+
+    ## 수평 벽 정보 출력 함수
+    def print_horizontal_wall_list(self):
+        """수평 벽 리스트 출력 함수"""
+        for i in range(self.maze_size+1):
+            for j in range(self.maze_size):
+                print(self._horizontal_wall_list[i][j], end = " ")
+            print("")
 
     ## 수직 벽 정보 출력 함수
     def print_vertical_wall_list(self):
