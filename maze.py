@@ -223,7 +223,7 @@ class Maze:
                 self.player_start_point = (player_random_value, 0)
                 # (random, maze_size-1)
                 self.exit_point = (exit_random_value, self.maze_size - 1)
-        self.exit_point_side_dir = (self.player_start_point_side_dir + 2) % 4
+        self.exit_point_side_dir = Direction((self.player_start_point_side_dir + 2) % 4)
                 
         
 

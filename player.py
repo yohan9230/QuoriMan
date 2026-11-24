@@ -61,7 +61,7 @@ if __name__ == "__main__":
         else:
             print("MazeBraider: 막다른 길 제거 실패")
 
-    player = Player(maze = maze, start_row = start_row, start_col = start_col)
+    player = Player(maze = maze)
     
     while True:
         print(player.current_row, end = ", ")
