@@ -249,8 +249,6 @@ class Maze:
                 self.exit_point = (exit_random_value, self.maze_size - 1)
         self.exit_point_side_dir = Direction((self.player_start_point_side_dir + 2) % 4)
                 
-        
-
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
     maze1 = Maze(int(input("미로 크기를 입력하세요: ")))
