@@ -15,6 +15,14 @@ class MazeBraider:
         # 벽 후보 리스트 섞기
         self.shuffle_dir_list()
     
+    # 생성자에 있는 작업을 그대로 다시 수행함
+    def reset(self):
+        """생성자에 있는 작업을 그대로 다시 수행함"""
+        self.dead_end_pos = []
+        self.dead_end_dir = []
+        self.find_end_pos_and_wall_dir()
+        self.shuffle_dir_list()
+    
     # row, col에서 막다른 길인지 확인하여 반환하는 함수
     def is_dead_end (self, row:int, col: int):
         """row, col에서 막다른 길인지 확인하여 반환하는 함수"""

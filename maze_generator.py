@@ -26,7 +26,17 @@ class MazeGenerator():
         self.visited[self.maze.start_row][self.maze.start_col] = True
         # 사직 위치 스택에 넣기
         self.visitied_pos_stack.append([self.maze.start_row, self.maze.start_col])
-        
+    
+    # 생성자에 있는 작업을 그대로 다시 수행함
+    def reset(self):
+        """생성자에 있는 작업을 그대로 다시 수행함"""
+        self._decide_maze_start_point()
+        self.visited = []
+        self.visitied_pos_stack = []
+        self.make_visitied()
+        self.visited[self.maze.start_row][self.maze.start_col] = True
+        self.visitied_pos_stack.append([self.maze.start_row, self.maze.start_col])
+    
     # 랜덤한 위치를 미로 생성의 시작으로 설정함
     def _decide_maze_start_point(self):
         """랜덤한 위치를 미로 생성의 시작으로 설정함"""

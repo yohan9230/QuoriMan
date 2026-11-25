@@ -56,7 +56,29 @@ class Maze:
         # 미로의 출구 위치
         self.exit_point:tuple = None
         
-                
+        self.make_horizontal_wall_list()
+        self.make_vertical_wall_list()
+    
+    # 생성자에 있는 작업을 그대로 다시 수행함
+    def reset(self):
+        """생성자에 있는 작업을 그대로 다시 수행함"""
+        if self.maze_size <= 0:
+            raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
+        self._horizontal_wall_list = []
+        self._vertical_wall_list = []
+        
+        self.start_row = None
+        self.start_col = None
+        
+        self.turn:int = 0
+        # 현재 스테이지 번호 <- 얘는 초기화하면 안됨
+        # self.stage:int = 1
+        
+        self.player_start_point_side_dir:Direction = None
+        self.player_start_point:tuple = None
+        self.exit_point_side_dir:Direction = None
+        self.exit_point:tuple = None
+        
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
 

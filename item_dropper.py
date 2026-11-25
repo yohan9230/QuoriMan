@@ -21,12 +21,16 @@ class ItemDropper:
         
         # 막대기 등 아이템이 드랍될 수 없는 위치를 저장한 집합
         self.exception_points = set()
+    
+    # 생성자에 있는 작업을 그대로 다시 수행함
+    def reset(self):
+        """생성자에 있는 작업을 그대로 다시 수행함"""
+        self.stick_points = None
+        self.exception_points = set()
 
     # 아이템이 드랍될 수 없는 곳을 미리 찾아두는 함수(튜플 좌표로 된 집합 반환)
     def find_drop_exception_points(self):
         """아이템이 드랍될 수 없는 곳을 미리 찾아두는 함수(튜플 좌표로 된 집합 반환)"""
-        # 이전 스테이지에서 남아있던 값을 초기화
-        self.exception_points = set()
         # 플레이어 시작 위치는 아이템 드랍 위치에서 제외
         self.exception_points.add((self.player.current_row, self.player.current_col))
         # 출구 위치도 아이템 드랍 위치에서 제외
