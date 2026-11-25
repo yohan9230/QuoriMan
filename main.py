@@ -100,16 +100,6 @@ def main():
     # 렌더링 객체 생성
     maze_renderer = Renderer(maze = maze, player = player, item_dropper=item_dropper)
 
-    # 미로 최초초기화
-    initialize_maze(
-        maze = maze, 
-        player = player,
-        maze_generator = maze_generator, 
-        maze_bradier = maze_braider, 
-        item_dropper = item_dropper, 
-        maze_renderer = maze_renderer,
-        first_using = True)
-    
     # 터미널 디버깅 기능이 켜져있다면 import 및 객체 생성
     if print_terminal_debuging:
         from terminal_debugger import TerminalDebugger
@@ -120,11 +110,21 @@ def main():
     
     # 라즈베리 파이의 입력 신호를 받는 객체 생성
     signal_observer = InputObserver()
+
+    # -----------------------------------------------------
+    
+    # 미로 초기화
+    initialize_maze(
+        maze = maze, 
+        player = player,
+        maze_generator = maze_generator, 
+        maze_bradier = maze_braider, 
+        item_dropper = item_dropper, 
+        maze_renderer = maze_renderer,
+        first_using = True)
     
     # 미로 이미지를 새로고침 및 LCD에 출력함
     refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
-    
-    # -----------------------------------------------------
     
     if print_terminal_debuging:
         terminal_debugger.print_stage_num()
