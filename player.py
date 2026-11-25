@@ -1,6 +1,6 @@
 # 플레이어 객체를 정의한 파일.
 
-from maze import Maze, Direction
+from maze import Maze, Direction, Wall
 
 class Player:
     maze:Maze
@@ -46,11 +46,25 @@ class Player:
         """- 플레이어가 출구에 도착했는지 확인하는 함수
         - 도착했으면 True, 아직 도착 안했으면 False 반환"""
         return (self.current_row, self.current_col) == self.maze.exit_point
-        
+    
+    # 플레이어를 시작 위치에 세우는 함수.
     def stand_player_start_point(self, point:tuple):
+        """플레이어의 시작 위치로 플레이어의 위치를 옮기는 함수"""
         self.current_row = point[0]
         self.current_col = point[1]
-        
+
+    # 울타리를 세우는 함수
+    def place_fence(self, point:tuple, d:Direction):
+        """- point 위치에서 d 방향으로 울타리를 세우는 함수"""
+        # 이미 벽이 있으면 울타리를 세우지 않음
+        if self.maze.is_there_wall(point[0], point[1], d):
+            return False
+        # 울타리를 세워도 출구까지 길이 남아있을때만 벽 세우기 가능
+        if self.maze.is_having_path(search_starting_point = (self.current_row, self.current_col), end_point = self.maze.exit_point, virtual_fence_point= point, virtual_fence_dir= d):
+            self.maze.change_wall(point[0], point[1], d, Wall.FENCE)
+            return True
+        return False
+    
         
 # -----------------------------------------------------
 

@@ -165,6 +165,8 @@ def main():
                     if player.is_player_arrived_exit():
                         maze.stage += 1
                         break
+            
+            
             time.sleep(0.02)
 
         # 미로 초기화. 기존 객체를 그대로 전달받음

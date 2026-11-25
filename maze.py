@@ -9,6 +9,12 @@ class Direction(IntEnum):
     DOWN = 2
     LEFT = 3
 
+# 벽 종류
+class Wall(IntEnum):
+    EMPTY  = 0 # bool로 치면 False
+    WALL = 1 # bool로 치면 True
+    FENCE = 2 # bool로 치면 True
+
 # 미로 클래스
 class Maze:
     # 미로의 수평 벽
@@ -33,9 +39,9 @@ class Maze:
         if maze_size <= 0:
             raise ValueError("maze_size 값은 0이하 일수 없습니다. 변수값을 수정해주세요.")
         self.maze_size = maze_size
-        # 수평 벽 리스트 (maze_size+1 * maze_size), True: 벽 있음
+        # 수평 벽 리스트 (maze_size+1 * maze_size), 0: 벽 없음, True(1): 벽 있음, True(2): 울타리 있음.
         self._horizontal_wall_list = []
-        # 수직 벽 리스트 (maze_size * maze_size+1), True: 벽 있음
+        # 수직 벽 리스트 (maze_size * maze_size+1), 0: 벽 없음, True(1): 벽 있음, True(2): 울타리 있음.
         self._vertical_wall_list = []
         
         # maze_generator가 미로의 생성 시작 위치를 저장할 것임.
@@ -88,7 +94,7 @@ class Maze:
         for i in range(self.maze_size+1):
             row = []
             for j in range(self.maze_size):
-                row.append(True)
+                row.append(Wall.WALL)
             self._horizontal_wall_list.append(row)
 
     ## 수직 벽 정보 리스트 만드는 함수
@@ -97,7 +103,7 @@ class Maze:
         for i in range(self.maze_size):
             row = []
             for j in range(self.maze_size+1):
-                row.append(True)
+                row.append(Wall.WALL)
             self._vertical_wall_list.append(row)
 
     ## 수평 벽 정보 출력 함수
@@ -117,10 +123,13 @@ class Maze:
             print("")
 
     ## 벽 존재 여부 판단 함수
-    def is_there_wall(self, row:int, col:int, d:Direction):
-        """row, col 위치에서, d 방향에 벽이 있는지 확인하여 반환함"""
+    def is_there_wall(self, row:int, col:int, d:Direction, virtual_fence_point:tuple = None, virtual_fence_dir:Direction = None):
+        """- row, col 위치에서, d 방향에 벽이 있는지 확인하여 반환함
+        - 가상의 울타리를 고려할 경우 virtal 인자를 쓰면 됨. 않 넣으면 현 미로 상태 기반으로만 벽 판단."""
         if self.out_of_maze(row, col):
             raise ValueError("잘못된 위치: 미로 밖")
+        if (row, col) == virtual_fence_point and d == virtual_fence_dir: return Wall.FENCE
+        if (row+self.DIR_ROW[d], col+self.DIR_COL[d]) == virtual_fence_point and (d + 2) % 4 == virtual_fence_dir: return Wall.FENCE
         match d:
             case Direction.UP:
                 return self._horizontal_wall_list[row][col]
@@ -134,8 +143,9 @@ class Maze:
                 raise ValueError("벽 조회에 불가능한 방향 조회")
 
     ## 벽 수정 함수
-    def change_wall(self, row:int, col:int, d:Direction, change:bool):
-        """미로의 [row, col]칸에서, dir방향의 벽을 변경하는 함수"""
+    def change_wall(self, row:int, col:int, d:Direction, change:int):
+        """- 미로의 [row, col]칸에서, dir방향의 벽을 변경하는 함수
+        - 0: 벽 없음, 1: 미로 벽, 2: 울타리"""
         if self.out_of_maze(row, col):
             raise ValueError("잘못된 위치: 미로 밖")
         match d:
@@ -248,7 +258,39 @@ class Maze:
                 # (random, maze_size-1)
                 self.exit_point = (exit_random_value, self.maze_size - 1)
         self.exit_point_side_dir = Direction((self.player_start_point_side_dir + 2) % 4)
-                
+    
+    # BFS로 A 위치부터 B 위치까지 길이 있는지 확인하는 함수
+    def is_having_path(self, search_starting_point:tuple, end_point:tuple, virtual_fence_point:tuple = None, virtual_fence_dir:Direction = None):
+        """- BFS로 특정 위치부터 다른 특정 위치까지 길이 있는지 확인하는 함수. 방문할 수 있으면 True, 없으면 False
+        - search_starting_point: 탐색 시작 지점. 주로 플레이어 아니면 맹수
+        - end_point: 도달하려는 위치, virtual_fence_point과 virtual_fence_dir: 사실상 울타리때문에 있는 인자임. 사용할때만 넣으면 됨"""
+        # 방문 후보를 저장하는 큐 자료구조.
+        points_que = []
+        # 방문한 곳(이미 4방향에 대해 후보 탐색이 끝난 장소)를 저장한 집합. 다음 후보에서 자동 제외됨.
+        visitied = set()
+        
+        # 탐색 시작 위치를 방문 후보 큐와 방문 위치에 추가
+        points_que.append(search_starting_point)
+        
+        # 방문할 후보가 남아있는 동안 계속 반복(중간에 도착 지점을 찾으면 바로 return)
+        while points_que:
+            # 방문 후보 큐에서 가장 앞에 위치를 뽑아옴
+            current_point = points_que.pop(0)
+            # 4 방향에 대해서 탐색
+            for dir in Direction:
+                # 다음 방문할 곳을 일단 변수에 저장
+                next_point = (current_point[0] + self.DIR_ROW[dir], current_point[1] + self.DIR_COL[dir])
+                # 다음에 갈 곳이 방문했던 곳이 아니고, 해당 방향에 벽이 없다면 방문 후보임. 벽 조회할때 가상의 울타리도 같이 고려함
+                if not (next_point[0], next_point[1]) in visitied and not (self.is_there_wall(current_point[0], current_point[1], dir, virtual_fence_point = virtual_fence_point, virtual_fence_dir = virtual_fence_dir)):
+                    # 도착지점에 도착했다면 True를 반환함
+                    if next_point == end_point: return True
+                    # 방문 후보에 추가
+                    points_que.append(next_point)
+                    # 현 위치를 방문한 곳으로 추가.
+                    visitied.add(current_point)
+        # 갈 수 있는 모든 곳을 방문했음에도 도착지점에 도달하지 못하면 도달 할 수 없음이라고 판정
+        return False
+
 # 직접 실행할때만 동작하는 실행코드
 if __name__ == "__main__":
     maze1 = Maze(int(input("미로 크기를 입력하세요: ")))
