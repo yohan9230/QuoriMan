@@ -4,6 +4,7 @@ from maze_generator import MazeGenerator
 from maze_braider import MazeBraider
 from player import Player
 from item_dropper import ItemDropper
+from cursor import Cursor
 
 from lcd_controller import LCD
 from renderer import Renderer
@@ -42,7 +43,7 @@ exit_icon_margin = 0
 # -----------------------------------------------------
 
 # maze를 초기화 하는 함수
-def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze_bradier:MazeBraider, item_dropper:ItemDropper, maze_renderer:Renderer, first_using:bool):
+def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze_bradier:MazeBraider, item_dropper:ItemDropper, maze_renderer:Renderer, cursor:Cursor,first_using:bool):
     """- 기존 maze 객체를 격자수준부터 다시 만듬.
     - 플레이어 시작 위치, 막대기 위치 등등 모두 초기화
     - 플레이어 객체는 건들지 않음"""
@@ -67,6 +68,7 @@ def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze
         maze_generator.reset()
         maze_bradier.reset()
         item_dropper.reset()
+        cursor.reset()
     
     # 플레이어와 출구의 시작 위치 랜덤으로 정해짐(플레이어와 출구의 위치는 항상 정 반대편 면임)
     maze.place_player_and_exit()
@@ -99,6 +101,9 @@ def main():
     maze_generator = MazeGenerator(maze = maze)
     maze_braider = MazeBraider(maze)
     
+    # 칸 선택하는 커서 객체 생성
+    cursor = Cursor(maze = maze)
+    
     # 플레이어 객체 생성
     player = Player(maze, facing = player_start_facing)
     
@@ -129,6 +134,7 @@ def main():
         maze_bradier = maze_braider, 
         item_dropper = item_dropper, 
         maze_renderer = maze_renderer,
+        cursor = cursor,
         first_using = True)
     
     # 무한 스테이지 반복
@@ -173,6 +179,8 @@ def main():
                     # 5버튼이 눌린것이 감지되면 칸 선택 모드로 변경
                     elif signal_observer.check_five_button_pressed():
                         maze.mode = Mode.SELECT
+                        # 커서의 시작 지점을 플레이어의 현 좌표로 설정
+                        cursor.point_set((player.current_row, player.current_col))
                         if print_terminal_debuging:
                             print("Mode: 칸 선택 모드로 전환")
 
@@ -187,8 +195,12 @@ def main():
                         maze.mode = Mode.MOVE
                         if print_terminal_debuging:
                             print("Mode: 이동 모드로 전환")
-
                     
+                    elif signal_observer.check_direction_changed():
+                        # 커서를 조이스틱 방향으로 이동시킴
+                        if cursor.move(signal_observer.current_direction):
+                            refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
+                        
                 case Mode.DIR:
                     if signal_observer.check_five_button_pressed():
                         # 아직 미구현. 칸과 방향을 받아서 울타리를 세우게 해야함
@@ -210,6 +222,7 @@ def main():
             maze_bradier = maze_braider, 
             item_dropper = item_dropper, 
             maze_renderer = maze_renderer,
+            cursor = cursor, 
             first_using = False)
 
 if __name__ == "__main__":
