@@ -8,7 +8,7 @@
 # PIL: 파이썬에서 그림을 만들고, 읽고, 고치고, 저장 할 수 있게 해주는 라이브러리
 from PIL import Image, ImageDraw
 # 그릴 객체 관련 소스파일 전부 import
-from maze import Maze, Direction
+from maze import Maze, Direction, Wall
 from player import Player
 from item_dropper import ItemDropper
 
@@ -67,6 +67,7 @@ class Renderer:
         # 배경색 및 벽 색
         self.background_color = (0,0,0)
         self.wall_color = (255, 255, 255)
+        self.fence_color = "orange"
         
         # 배경 이미지와 해당 배경위에 그림을 그릴 수 있는 "브러시" 객체 생성
         self.maze_image = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
@@ -169,17 +170,25 @@ class Renderer:
                 for d in Direction:
                     self.draw_wall(row, col, d)
             case Direction.UP:
-                if self.maze.is_there_wall(row, col, Direction.UP): 
+                if self.maze.is_there_wall(row, col, Direction.UP) == Wall.WALL: 
                     self.maze_brush.rectangle(self.return_up_wall_points(pillar_anchor), fill = self.wall_color)
+                elif self.maze.is_there_wall(row, col, Direction.UP) == Wall.FENCE:
+                    self.maze_brush.rectangle(self.return_up_wall_points(pillar_anchor), fill = self.fence_color)
             case Direction.RIGHT:
-                if self.maze.is_there_wall(row, col, Direction.RIGHT): 
+                if self.maze.is_there_wall(row, col, Direction.RIGHT) == Wall.WALL: 
                     self.maze_brush.rectangle(self.return_right_wall_points(pillar_anchor), fill = self.wall_color)
+                elif self.maze.is_there_wall(row, col, Direction.RIGHT) == Wall.FENCE:
+                    self.maze_brush.rectangle(self.return_right_wall_points(pillar_anchor), fill = self.fence_color)
             case Direction.DOWN:
-                if self.maze.is_there_wall(row, col, Direction.DOWN): 
+                if self.maze.is_there_wall(row, col, Direction.DOWN) == Wall.WALL: 
                     self.maze_brush.rectangle(self.return_down_wall_points(pillar_anchor), fill = self.wall_color)
+                elif self.maze.is_there_wall(row, col, Direction.DOWN) == Wall.FENCE:
+                    self.maze_brush.rectangle(self.return_down_wall_points(pillar_anchor), fill = self.fence_color)
             case Direction.LEFT:
-                if self.maze.is_there_wall(row, col, Direction.LEFT): 
+                if self.maze.is_there_wall(row, col, Direction.LEFT) == Wall.WALL: 
                     self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor), fill = self.wall_color)
+                elif self.maze.is_there_wall(row, col, Direction.LEFT) == Wall.FENCE:
+                    self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor), fill = self.fence_color)
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
     
@@ -261,7 +270,7 @@ class Renderer:
         pillar_anchor = self.find_pillar_anchor_point(point[0], point[1])
         inner_points = self.return_inner_cell_points(pillar_anchor = pillar_anchor, margin = self.exit_icon_margin)
         self.maze_brush.rectangle(inner_points, fill = "green")
-
+    
 # -----------------------------------------------------
 # LCD에 직접 미로를 띄움
 
