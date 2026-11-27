@@ -55,7 +55,8 @@ class Player:
 
     # 울타리를 세우는 함수
     def place_fence(self, point:tuple, d:Direction):
-        """- point 위치에서 d 방향으로 울타리를 세우는 함수"""
+        """- point 위치에서 d 방향으로 울타리를 세우는 함수
+        - 벽을 성공적으로 세우면 True, 못 세웠다면 False 반환"""
         # 이미 벽이 있으면 울타리를 세우지 않음
         if self.maze.is_there_wall(point[0], point[1], d):
             return False

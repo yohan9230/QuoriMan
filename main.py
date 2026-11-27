@@ -25,6 +25,9 @@ player_start_facing = Direction.UP
 ## 스테이지별로 드랍되는 재료(막대기) 개수 설정
 stick_num = 15
 
+## 울타리 하나당 막대기 소모 개수
+need_stick_num = 4
+
 ## 렌더링 항목 그릴지 여부
 draw_start_point_icon = False
 draw_player = True
@@ -147,10 +150,7 @@ def main():
                         player.stick_num += 1
                         player.score += 1
                     maze.turn += 1
-                    # 플레이어 이동하는 것으로 미로를 재 렌더링함
-                    maze_image = maze_renderer.draw_maze()
-                    # 재 렌더링한 미로를 LCD로 출력함
-                    lcd_controller.show_the_image(maze_image)
+                    refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
 
                     # 터미널 디버깅 기능이 켜져있다면
                     if print_terminal_debuging:
@@ -166,7 +166,13 @@ def main():
                         maze.stage += 1
                         break
             
-            
+            # 5버튼이 눌린것이 감지되면
+            if signal_observer.check_five_button_pressed():
+                if player.stick_num >= need_stick_num:
+                    # 울타리를 세우고, 성공적으로 세웠다면 막대기 개수를 차감
+                    if player.place_fence((player.current_row, player.current_col), player.facing):
+                        player.stick_num -= need_stick_num
+                        refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
             time.sleep(0.02)
 
         # 미로 초기화. 기존 객체를 그대로 전달받음
