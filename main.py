@@ -1,5 +1,5 @@
 # 각종 모듈화된 객체들을 이곳에 모아서 최종적으로 실행하는 파이썬 파일. 이곳에서 게임이 돌아갈 것임.
-from maze import Maze, Direction
+from maze import Maze, Direction, Mode
 from maze_generator import MazeGenerator
 from maze_braider import MazeBraider
 from player import Player
@@ -135,47 +135,74 @@ def main():
     while True:
         # 미로 이미지를 새로고침 및 LCD에 출력함
         refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
-
+        
         if print_terminal_debuging:
             print("-----------------")
             terminal_debugger.print_stage_num()
 
+        # 입력을 주기적으로 감지
         while True:
-            # 조이스틱의 움직임이 감지되면(방향 변경이 감지되면)
-            if signal_observer.check_direction_changed():
-                # 플레이어가 움직일수 있다면 움직임
-                if player.move(signal_observer.current_direction):
-                    # 움직이고 나서, 막대기가 있다면 플레이어 막대기 카운트 + 1
-                    if item_dropper.remove_stick():
-                        player.stick_num += 1
-                        player.score += 1
-                    maze.turn += 1
-                    refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
-
-                    # 터미널 디버깅 기능이 켜져있다면
-                    if print_terminal_debuging:
-                        # 턴수 출력
-                        terminal_debugger.print_turn_count()
-                        # 플레이어의 막대기 수 출력
-                        terminal_debugger.print_player_stick_num()
-                        # 플레이어의 점수 출력
-                        terminal_debugger.print_player_score()
-
-                    # 플레이어가 출구에 도착하면 움직임 감지를 중지함
-                    if player.is_player_arrived_exit():
-                        maze.stage += 1
-                        break
-            
-            # 5버튼이 눌린것이 감지되면
-            if signal_observer.check_five_button_pressed():
-                if player.stick_num >= need_stick_num:
-                    # 울타리를 세우고, 성공적으로 세웠다면 막대기 개수를 차감
-                    if player.place_fence((player.current_row, player.current_col), player.facing):
-                        player.stick_num -= need_stick_num
-                        refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
             time.sleep(0.02)
+            # 미로의 모드에 따라 입력의 역할이 달라짐.
+            match maze.mode:
+                # 미로의 모드가 움직이기라면...
+                case Mode.MOVE:
+                    # 조이스틱의 움직임이 감지되면(방향 변경이 감지되면) 플레이어 이동
+                    if signal_observer.check_direction_changed():
+                            # 플레이어가 움직일수 있다면 움직임
+                            if player.move(signal_observer.current_direction):
+                                # 움직이고 나서, 막대기가 있다면 플레이어 막대기 카운트 + 1
+                                if item_dropper.remove_stick():
+                                    player.stick_num += 1
+                                    player.score += 1
+                                maze.turn += 1
+                                refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
+                                # 터미널 디버깅 기능이 켜져있다면
+                                if print_terminal_debuging:
+                                    # 턴수 출력
+                                    terminal_debugger.print_turn_count()
+                                    # 플레이어의 막대기 수 출력
+                                    terminal_debugger.print_player_stick_num()
+                                    # 플레이어의 점수 출력
+                                    terminal_debugger.print_player_score()
+                                # 플레이어가 출구에 도착하면 움직임 감지를 중지함
+                                if player.is_player_arrived_exit():
+                                    maze.stage += 1
+                                    break
+                    
+                    # 5버튼이 눌린것이 감지되면 칸 선택 모드로 변경
+                    elif signal_observer.check_five_button_pressed():
+                        maze.mode = Mode.SELECT
+                        if print_terminal_debuging:
+                            print("Mode: 칸 선택 모드로 전환")
 
-        # 미로 초기화. 기존 객체를 그대로 전달받음
+                # 미로의 모드가 칸 선택이라면...
+                case Mode.SELECT:
+                    if signal_observer.check_five_button_pressed():
+                        maze.mode = Mode.DIR
+                        if print_terminal_debuging:
+                            print("Mode: 방향 선택 모드로 전환")
+
+                    elif signal_observer.check_six_button_pressed():
+                        maze.mode = Mode.MOVE
+                        if print_terminal_debuging:
+                            print("Mode: 이동 모드로 전환")
+
+                    
+                case Mode.DIR:
+                    if signal_observer.check_five_button_pressed():
+                        # 아직 미구현. 칸과 방향을 받아서 울타리를 세우게 해야함
+                        if print_terminal_debuging:
+                            print("Player: 울타리 설치")
+                    elif signal_observer.check_six_button_pressed():
+                        maze.mode = Mode.SELECT
+                        if print_terminal_debuging:
+                            print("Mode: 칸 선택 모드로 전환")
+                    
+            
+            
+    
+        # 스테이지 초기화. 기존 객체를 그대로 전달받음
         initialize_maze(
             maze = maze, 
             player = player,

@@ -1,5 +1,5 @@
 # 미로의 기본 틀을 만드는 소스 파일. n * n 격자를 생성함.
-from enum import IntEnum
+from enum import IntEnum, Enum
 import random
 
 # 방향
@@ -14,6 +14,12 @@ class Wall(IntEnum):
     EMPTY  = 0 # bool로 치면 False
     WALL = 1 # bool로 치면 True
     FENCE = 2 # bool로 치면 True
+    
+# 조작 모드(이동, 칸선택, 방향 선택)
+class Mode(Enum):
+    MOVE = 0
+    SELECT = 1
+    DIR = 2
 
 # 미로 클래스
 class Maze:
@@ -62,6 +68,9 @@ class Maze:
         # 미로의 출구 위치
         self.exit_point:tuple = None
         
+        # 미로의 모드를 이동 모드로 초기화
+        self.mode = Mode.MOVE
+        
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
     
@@ -84,6 +93,9 @@ class Maze:
         self.player_start_point:tuple = None
         self.exit_point_side_dir:Direction = None
         self.exit_point:tuple = None
+        
+        # 미로의 모드도 초기화하면 안됨.
+        # self.mode = Mode.MOVE
         
         self.make_horizontal_wall_list()
         self.make_vertical_wall_list()
