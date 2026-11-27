@@ -35,6 +35,17 @@ draw_player = True
 draw_stick = True
 draw_exit = True
 
+# 렌더링 아이콘 색
+background_color = (0,0,0)
+wall_color = (255, 255, 255)
+fence_color = "orange"
+start_point_icon_color = "blue"
+cursor_color = (135, 206, 235)
+
+player_icon_color = "red"
+stick_icon_color = "brown"
+exit_icon_color = "green"
+
 ## 렌더링 아이콘마다 여백 값
 start_point_icon_margin = 0
 player_icon_margin = 2
@@ -60,7 +71,17 @@ def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze
             start_point_icon_margin = start_point_icon_margin,
             player_icon_margin = player_icon_margin,
             stick_icon_margin = stick_icon_margin,
-            exit_icon_margin = exit_icon_margin
+            exit_icon_margin = exit_icon_margin)
+        # 각 아이콘별 색 설정
+        maze_renderer.set_icon_color(
+            background_color = background_color,
+            wall_color = wall_color,
+            fence_color = fence_color,
+            start_point_icon_color = start_point_icon_color,
+            cursor_color = cursor_color,
+            player_icon_color = player_icon_color,
+            stick_icon_color = stick_icon_color,
+            exit_icon_color = exit_icon_color
         )
     else:
         # 두번째 이상 호출부터면 이전 스테이지의 영향을 받지 않기 위해 일부 객체 초기화
@@ -111,7 +132,7 @@ def main():
     item_dropper = ItemDropper(stick_num, player, maze)
 
     # 렌더링 객체 생성
-    maze_renderer = Renderer(maze = maze, player = player, item_dropper=item_dropper)
+    maze_renderer = Renderer(maze = maze, player = player, item_dropper = item_dropper, cursor = cursor)
 
     # 터미널 디버깅 기능이 켜져있다면 import 및 객체 생성
     if print_terminal_debuging:
@@ -148,6 +169,7 @@ def main():
 
         # 입력을 주기적으로 감지
         while True:
+            refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
             time.sleep(0.02)
             # 미로의 모드에 따라 입력의 역할이 달라짐.
             match maze.mode:
@@ -162,7 +184,6 @@ def main():
                                     player.stick_num += 1
                                     player.score += 1
                                 maze.turn += 1
-                                refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
                                 # 터미널 디버깅 기능이 켜져있다면
                                 if print_terminal_debuging:
                                     # 턴수 출력
@@ -198,8 +219,7 @@ def main():
                     
                     elif signal_observer.check_direction_changed():
                         # 커서를 조이스틱 방향으로 이동시킴
-                        if cursor.move(signal_observer.current_direction):
-                            refresh_maze_image(maze_renderer = maze_renderer, lcd_controller = lcd_controller)
+                        cursor.move(signal_observer.current_direction)
                         
                 case Mode.DIR:
                     if signal_observer.check_five_button_pressed():
@@ -210,9 +230,6 @@ def main():
                         maze.mode = Mode.SELECT
                         if print_terminal_debuging:
                             print("Mode: 칸 선택 모드로 전환")
-                    
-            
-            
     
         # 스테이지 초기화. 기존 객체를 그대로 전달받음
         initialize_maze(
