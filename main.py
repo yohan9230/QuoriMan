@@ -5,12 +5,14 @@ from maze_braider import MazeBraider
 from player import Player
 from item_dropper import ItemDropper
 from cursor import Cursor
+from wildlife import WildLife, Bear, GoalPointType
 
 from lcd_controller import LCD
 from renderer import Renderer
 from input_observer import InputObserver
 
 import time
+import random
 
 # 터미널 출력 여부(디버깅용)
 print_terminal_debuging = True
@@ -53,14 +55,24 @@ player_icon_margin = 2
 stick_icon_margin = 7
 exit_icon_margin = 0
 
-# 야생동물의 목표 지점을 플레이어와 몇칸 멀리 둘지
+#야생동물 관련
+## 곰 한마리 스폰되는 스테이지 범위
+one_wildlife_stage = 1
+
+## 곰 두마리 스폰되는 스테이지 범위
+two_wildlife_stage = 4
+
+## 곰 세마리 스폰되는 스테이지 범위
+three_wildlife_stage = 10
+
+## 야생동물의 목표 지점을 플레이어와 몇칸 멀리 둘지
 wildlife_tracking_distance = 4
 
 
 # -----------------------------------------------------
 
 # maze를 초기화 하는 함수
-def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze_bradier:MazeBraider, item_dropper:ItemDropper, maze_renderer:Renderer, cursor:Cursor,first_using:bool):
+def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze_bradier:MazeBraider, item_dropper:ItemDropper, maze_renderer:Renderer, cursor:Cursor, wildlife:WildLife, first_using:bool):
     """- 기존 maze 객체를 격자수준부터 다시 만듬.
     - 플레이어 시작 위치, 막대기 위치 등등 모두 초기화
     - 플레이어 객체는 건들지 않음"""
@@ -112,6 +124,34 @@ def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze
     maze_bradier.braid_maze()
     # 플레이어의 시작 위치에 플레이어를 둠
     player.stand_player_start_point(maze.player_start_point)
+    # 미로에 야생동물이 스폰되는 위치를 저장한 리스트를 새롭게 뽑음
+    wildlife.find_candidate_spawn_points()
+    
+    wildlife_goal_point_type_list = []
+    for elem in GoalPointType:
+        wildlife_goal_point_type_list.append(elem)
+    
+    random.shuffle(wildlife_goal_point_type_list)
+    
+    if maze.stage <= one_wildlife_stage:
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+    elif maze.stage > one_wildlife_stage and maze.stage <= two_wildlife_stage:
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+    else:
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+        maze.wildlife_list.append(Bear(maze = maze, player = player, tracking_distance = wildlife_tracking_distance))
+    
+    for wildlife in maze.wildlife_list:
+        wildlife.set_goal_point_kind(goal_type = wildlife_goal_point_type_list.pop(0))
+
+    # 미로의 모든 야생동물에 대해서 야생동물의 스폰 위치를 결정하고 스폰시킴(렌더링 X)
+    for wildlife in maze.wildlife_list:
+        wildlife.determine_spawn_point_and_spawn()
+        # 이번에 추가한 위치를 다른 야생동물 스폰위치로 설정되지 못하도록 야생동물 스폰 좌표 후보 리스트에서 뺌
+        maze.candidate_wildlife_spawn_point.remove(wildlife.current_point)    
+
     # 막대기 위치 결정
     item_dropper.decide_stick_pos()
 
@@ -135,9 +175,12 @@ def main():
     # 플레이어 객체 생성
     player = Player(maze, facing = player_start_facing)
     
+    # 야생동물 객체 생성
+    wildlife = WildLife(maze, player, tracking_distance = wildlife_tracking_distance)
+
     # 아이템 드롭퍼 객체 생성
     item_dropper = ItemDropper(stick_num, player, maze)
-
+    
     # 렌더링 객체 생성
     maze_renderer = Renderer(maze = maze, player = player, item_dropper = item_dropper, cursor = cursor)
 
@@ -162,6 +205,7 @@ def main():
         maze_bradier = maze_braider, 
         item_dropper = item_dropper, 
         maze_renderer = maze_renderer,
+        wildlife = wildlife,
         cursor = cursor,
         first_using = True)
     
@@ -259,7 +303,8 @@ def main():
             maze_bradier = maze_braider, 
             item_dropper = item_dropper, 
             maze_renderer = maze_renderer,
-            cursor = cursor, 
+            cursor = cursor,
+            wildlife = wildlife,
             first_using = False)
 
 if __name__ == "__main__":

@@ -18,11 +18,39 @@ class WildLife():
         self.tracking_distance:int = tracking_distance
         
         self.current_point:tuple = None
-        self.old_point:tuple = None
         self.facing:Direction = None
     
+    # 스폰 위치로 가능한 좌표들의 리스트를 maze에 저장함
+    def find_candidate_spawn_points(self):
+        """스폰 위치로 가능한 좌표들의 리스트를 maze에 저장함"""
+        spawn_side_dir = self.maze.exit_point_side_dir
+        candidate_wildlife_spawn_point = set()
+        match spawn_side_dir:
+            case Direction.UP:
+                row = 0
+                for col in range(self.maze.maze_size):
+                    if row == self.maze.exit_point[0] and col == self.maze.exit_point[1]: continue
+                    candidate_wildlife_spawn_point.add((row, col))
+            case Direction.RIGHT:
+                col = self.maze.maze_size - 1
+                for row in range(self.maze.maze_size):
+                    if row == self.maze.exit_point[0] and col == self.maze.exit_point[1]: continue
+                    candidate_wildlife_spawn_point.add((row, col))
+            case Direction.DOWN:
+                row = self.maze.maze_size - 1
+                for col in range(self.maze.maze_size):
+                    if row == self.maze.exit_point[0] and col == self.maze.exit_point[1]: continue
+                    candidate_wildlife_spawn_point.add((row, col))
+            case Direction.LEFT:
+                col = 0
+                for row in range(self.maze.maze_size):
+                    if row == self.maze.exit_point[0] and col == self.maze.exit_point[1]: continue
+                    candidate_wildlife_spawn_point.add((row, col))
+        # 미로에 야생동물이 스폰될 수 있는 위치를 담은 리스트 저장
+        self.maze.candidate_wildlife_spawn_point = candidate_wildlife_spawn_point
+
     # point 좌표에서 벽이 없는 방향 중 랜덤으로 한곳으로 쳐다보도록 하여 야생동물을 스폰시킴
-    def spawn_wildlife(self, point:tuple):
+    def _spawn_wildlife(self, point:tuple):
         """point 좌표에서 벽이 없는 방향 중 랜덤으로 한곳으로 쳐다보도록 하여 야생동물을 스폰시킴"""
         self.current_point = point
         candidate_dir = []
@@ -30,9 +58,17 @@ class WildLife():
             if not self.maze.is_there_wall(point[0], point[1], dir):
                 candidate_dir.append(dir)
         self.facing = random.choice(candidate_dir)
-        
+    
+    # 최종적으로 야생동물의 스폰 위치를 결정 및 스폰시킴
+    def determine_spawn_point_and_spawn(self):
+        """- 최종적으로 야생동물의 스폰 위치를 결정 및 스폰시킴"""
+        # 후보 위치중 하나를 무작위로 시작 위치로 설정
+        self._spawn_wildlife(random.choice(list(self.maze.candidate_wildlife_spawn_point)))
+    
+    # -----------------------------------------------------
     # 이 야생동물의 목표지점 결정 타입을 지정함
     def set_goal_point_kind(self, goal_type:GoalPointType):
+        """이 야생동물의 목표지점 결정 타입을 지정함"""
         self.goal_point_kind = goal_type
     
     # 플레이어 기반 최종 목표 지점을 결정함

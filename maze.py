@@ -63,10 +63,15 @@ class Maze:
         self.player_start_point_side_dir:Direction = None
         # 플레이어의 시작 위치
         self.player_start_point:tuple = None
-        # 미로 출구 위치이 면 방향
+        # 미로 출구 위치이 면 방향(= 야생동물의 스폰 위치 면 방향)
         self.exit_point_side_dir:Direction = None
         # 미로의 출구 위치
         self.exit_point:tuple = None
+        # 야생동물 스폰 위치 후보 리스트
+        self.candidate_wildlife_spawn_point:set = None
+        # 야생동물 객체를 담는 리스트
+        self.wildlife_list = []
+        
         
         # 미로의 모드를 이동 모드로 초기화
         self.mode = Mode.MOVE
@@ -93,6 +98,7 @@ class Maze:
         self.player_start_point:tuple = None
         self.exit_point_side_dir:Direction = None
         self.exit_point:tuple = None
+        self.wildlife_list = []
         
         # 미로의 모드도 초기화하면 안됨.
         # self.mode = Mode.MOVE
