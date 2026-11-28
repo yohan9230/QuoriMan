@@ -45,6 +45,7 @@ cursor_color = (135, 206, 235)
 player_icon_color = "red"
 stick_icon_color = "brown"
 exit_icon_color = "green"
+cursor_dir_color = (255, 0, 255)
 
 ## 렌더링 아이콘마다 여백 값
 start_point_icon_margin = 0
@@ -81,7 +82,8 @@ def initialize_maze(maze:Maze, player:Player, maze_generator:MazeGenerator, maze
             cursor_color = cursor_color,
             player_icon_color = player_icon_color,
             stick_icon_color = stick_icon_color,
-            exit_icon_color = exit_icon_color
+            exit_icon_color = exit_icon_color,
+            cursor_dir_color = cursor_dir_color
         )
     else:
         # 두번째 이상 호출부터면 이전 스테이지의 영향을 받지 않기 위해 일부 객체 초기화
@@ -220,12 +222,25 @@ def main():
                     elif signal_observer.check_direction_changed():
                         # 커서를 조이스틱 방향으로 이동시킴
                         cursor.move(signal_observer.current_direction)
-                        
+                
+                # 미로의 모드가 방향 설정이라면...
                 case Mode.DIR:
-                    if signal_observer.check_five_button_pressed():
-                        # 아직 미구현. 칸과 방향을 받아서 울타리를 세우게 해야함
-                        if print_terminal_debuging:
-                            print("Player: 울타리 설치")
+                    if signal_observer.check_direction_changed():
+                        cursor.set_dir(signal_observer.current_direction)
+                    
+                    # 5번 버튼이 눌리면 울타리 설치 시도
+                    elif signal_observer.check_five_button_pressed():
+                        # 플레이어의 막대기 개수가 울타리 세우기에 필요한 막대기 수보다 많은지 확인
+                        if player.stick_num >= need_stick_num:
+                            # 현재 커서 위치 및 방향에 울타리를 세울수 있는지 확인
+                            if player.place_fence(cursor.current_point, cursor.current_dir):
+                                # 세우는데 성공했을 경우에만 플레이어 막대기 개수를 뺌
+                                player.stick_num -= need_stick_num
+                                # 울타리를 설치하고 나면 모드를 바로 MOVE로 설정
+                                maze.mode = Mode.MOVE
+                                if print_terminal_debuging:
+                                    print("Player: 울타리 세우기 성공")
+                    
                     elif signal_observer.check_six_button_pressed():
                         maze.mode = Mode.SELECT
                         if print_terminal_debuging:

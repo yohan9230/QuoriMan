@@ -6,9 +6,11 @@ class Cursor:
     def __init__(self, maze):
         self.maze = maze
         self.current_point:tuple = None
+        self.current_dir:Direction = Direction.UP
     
     def reset(self):
         self.current_point = None
+        self.current_dir = Direction.UP
     
     # 커서를 point로 옮김
     def point_set(self, point:tuple):
@@ -28,3 +30,7 @@ class Cursor:
             self.current_point = (next_row, next_col)
             return True
     
+    # 커서의 방향을 설정함
+    def set_dir(self, dir:Direction):
+        """커서의 방향을 설정함"""
+        self.current_dir = dir

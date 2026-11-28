@@ -77,13 +77,14 @@ class Renderer:
         self.player_icon_color = "red"
         self.stick_icon_color = "brown"
         self.exit_icon_color = "green"
+        self.cursor_dir_color = (255, 0, 255)   # 마젠타 색
         
         # 배경 이미지와 해당 배경위에 그림을 그릴 수 있는 "브러시" 객체 생성
         self.maze_image = Image.new("RGB",(self.screen_width, self.screen_height), self.background_color)
         self.maze_brush = ImageDraw.Draw(self.maze_image)
     
     # 각종 아이콘의 색을 변경하는 함수
-    def set_icon_color(self, background_color = (0,0,0), wall_color = (255, 255, 255), fence_color = "orange", start_point_icon_color = "blue", cursor_color = (135, 206, 235), player_icon_color = "red", stick_icon_color = "brown", exit_icon_color = "green"):
+    def set_icon_color(self, background_color = (0,0,0), wall_color = (255, 255, 255), fence_color = "orange", start_point_icon_color = "blue", cursor_color = (135, 206, 235), player_icon_color = "red", stick_icon_color = "brown", exit_icon_color = "green", cursor_dir_color = (255, 0, 255)):
         """각종 아이콘의 색을 변경하는 함수"""
         self.background_color = background_color
         self.wall_color = wall_color
@@ -93,7 +94,8 @@ class Renderer:
         self.player_icon_color = player_icon_color
         self.stick_icon_color = stick_icon_color
         self.exit_icon_color = exit_icon_color
-    
+        self.cursor_dir_color = cursor_dir_color
+        
     # (row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환
     def find_pillar_anchor_point(self, row:int, col:int):
         """(row, col) 위치의 미로 칸의 렌더링 기준점(왼쪽 상단 기둥)의 좌표를 리스트로 반환"""
@@ -167,7 +169,6 @@ class Renderer:
         else:
             raise RuntimeError("Renderer: 좌측 벽 렌더링 좌표가 잘못 계산되었습니다.")
     
-    
     # 벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수
     def return_inner_cell_points(self, pillar_anchor:list, margin:int = 0):
         """벽 내부 공간의 좌측 상단, 우측 하단의 좌표를 구하여 반환하는 함수"""
@@ -212,13 +213,6 @@ class Renderer:
                     self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor), fill = self.fence_color)
             case _:
                 raise ValueError("Renderer: 렌더링 할 수 없는 벽 방향입니다.")
-    
-    # 미로 생성 시작지점에 시작 지점 전용 사각형을 그림. 반환값 없음
-    def _draw_start_point_icon(self):
-        """미로 생성 시작지점에 파란색 사각형을 그림. 반환값 없음"""
-        pillar_anchor = self.find_pillar_anchor_point(self.maze.start_row, self.maze.start_col)
-        points = self.return_inner_cell_points(pillar_anchor, margin=self.start_point_icon_margin)
-        self.maze_brush.rectangle(points, fill = self.start_point_icon_color)
 
     # 각 렌더링 객체를 그릴지 설정하는 함수
     def set_rendering_icons(self, draw_start_point_icon:bool, draw_player:bool, draw_stick:bool, draw_exit:bool):
@@ -246,8 +240,6 @@ class Renderer:
         inner_points = self.return_inner_cell_points(pillar_anchor_point, margin = self.player_icon_margin)
         self.maze_brush.ellipse(inner_points, fill = self.player_icon_color)
     
-    # -----------------------------------------------------
-    
     # tuple(row, col)에서 막대기를 렌더링 하는 함수. 혹은 모든 막대기를 렌더링 함
     def _draw_stick(self, pos:tuple = None):
         """막대기를 렌더링 하는 함수"""
@@ -264,7 +256,12 @@ class Renderer:
             inner_points = self.return_inner_cell_points(pillar_anchor = pillar_anchor, margin = self.stick_icon_margin)
             self.maze_brush.ellipse(inner_points, fill = self.stick_icon_color)
     
-    # -----------------------------------------------------
+    # 미로 생성 시작지점에 시작 지점 전용 사각형을 그림. 반환값 없음
+    def _draw_start_point_icon(self):
+        """미로 생성 시작지점에 파란색 사각형을 그림. 반환값 없음"""
+        pillar_anchor = self.find_pillar_anchor_point(self.maze.start_row, self.maze.start_col)
+        points = self.return_inner_cell_points(pillar_anchor, margin=self.start_point_icon_margin)
+        self.maze_brush.rectangle(points, fill = self.start_point_icon_color)
     
     # 출구를 렌더링 하는 함수.
     def _draw_exit(self):
@@ -274,14 +271,36 @@ class Renderer:
         inner_points = self.return_inner_cell_points(pillar_anchor = pillar_anchor, margin = self.exit_icon_margin)
         self.maze_brush.rectangle(inner_points, fill = self.exit_icon_color)
     
-    # -----------------------------------------------------
-    
     # 커서를 렌더링 하는 함수.
     def _draw_cursor(self):
         """커서를 렌더링 하는 함수"""
         point = self.cursor.current_point
         pillar_anchor = self.find_pillar_anchor_point(point[0], point[1])
         self.maze_brush.rectangle(self.return_inner_cell_points(pillar_anchor = pillar_anchor), outline = self.cursor_color, width = self.cursor_thickness)
+
+    # 커서의 방향을 렌더링 하는 함수(방향 선택 모드일때만 그려짐)
+    def _draw_cursor_dir(self):
+        """커서의 방향을 렌더링 하는 함수(방향 선택 모드일때만 그려짐)"""
+        point = self.cursor.current_point
+        pillar_anchor = self.find_pillar_anchor_point(point[0], point[1])
+        # 울타리 반대편도 커서 방향 그림에 포함. 하나만 하면 너무 얇아서.
+        other_side_pillar_anchor = self.find_pillar_anchor_point(point[0] + self.maze.DIR_ROW[self.cursor.current_dir], point[1] + self.maze.DIR_COL[self.cursor.current_dir])
+        
+        # 커서의 현재 방향에 따라 커서 방향쪽으로 임시 벽 그림을 그림
+        match self.cursor.current_dir:
+            case Direction.UP:
+                self.maze_brush.rectangle(self.return_up_wall_points(pillar_anchor = pillar_anchor), fill = self.cursor_dir_color)
+                self.maze_brush.rectangle(self.return_down_wall_points(pillar_anchor = other_side_pillar_anchor), fill = self.cursor_dir_color)
+            case Direction.RIGHT:
+                self.maze_brush.rectangle(self.return_right_wall_points(pillar_anchor = pillar_anchor), fill = self.cursor_dir_color)
+                self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor = other_side_pillar_anchor), fill = self.cursor_dir_color)
+            case Direction.DOWN:
+                self.maze_brush.rectangle(self.return_down_wall_points(pillar_anchor = pillar_anchor), fill = self.cursor_dir_color)
+                self.maze_brush.rectangle(self.return_up_wall_points(pillar_anchor = other_side_pillar_anchor), fill = self.cursor_dir_color)
+            case Direction.LEFT:
+                self.maze_brush.rectangle(self.return_left_wall_points(pillar_anchor = pillar_anchor), fill = self.cursor_dir_color)
+                self.maze_brush.rectangle(self.return_right_wall_points(pillar_anchor = other_side_pillar_anchor), fill = self.cursor_dir_color)
+        
 
     # -----------------------------------------------------
     # 최종적으로 모든 칸의 벽을 렌더링 하도록 하는 함수. LCD 출력은 안함. maze_image 이미지 반환
@@ -304,6 +323,8 @@ class Renderer:
             self._draw_cursor()
         elif self.maze.mode == Mode.DIR:
             self._draw_cursor()
+            self._draw_cursor_dir()
+        
         return self.maze_image
 # -----------------------------------------------------
 # LCD에 직접 미로를 띄움
