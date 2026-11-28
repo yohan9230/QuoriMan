@@ -52,6 +52,11 @@ start_point_icon_margin = 0
 player_icon_margin = 2
 stick_icon_margin = 7
 exit_icon_margin = 0
+
+# 야생동물의 목표 지점을 플레이어와 몇칸 멀리 둘지
+wildlife_tracking_distance = 4
+
+
 # -----------------------------------------------------
 
 # maze를 초기화 하는 함수
